@@ -1,3 +1,6 @@
+# Python Weather App
+
+![Weather App](assets/screenshot.png)
 # Python Weather App (Tkinter + OpenWeatherMap)
 
 A simple desktop GUI app that fetches real-time weather for any city using the
