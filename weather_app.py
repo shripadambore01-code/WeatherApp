@@ -29,7 +29,7 @@ from PIL import Image, ImageTk
 # ----------------------------------------------------------------------
 
 # Option 1: paste your key directly here (quick, but not great for sharing c
-API_KEY = "47252dcc3a0e45d4b4ee886db5d0dfa5"
+API_KEY = "0fa9b6f39106bfc809dfe71e5aa8f235"
 
 # Option 2 (safer): read it from an environment variable instead.
 # If OPENWEATHER_API_KEY is set, it overrides the hardcoded value above.
