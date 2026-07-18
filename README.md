@@ -1,5 +1,4 @@
 # Python Weather App
-
 ![Weather App](assets/screenshot.png)
 # Python Weather App (Tkinter + OpenWeatherMap)
 
