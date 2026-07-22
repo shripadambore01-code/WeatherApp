@@ -131,6 +131,15 @@ class WeatherApp(tk.Tk):
         )
         self.wind_label.grid(row=0, column=1, padx=15)
 
+        self.feels_like_label = tk.Label(
+            details_frame,
+            text="🌡️ Feels Like: --°C",
+            font=("Segoe UI", 11),
+            bg="#334155",
+            fg="white"
+        )
+        self.feels_like_label.grid(row=1, column=0, columnspan=2, pady=8)
+
         # --- Status bar for errors / loading messages ---
         self.status_label = tk.Label(
             self, text="", font=("Segoe UI", 10),
@@ -210,6 +219,7 @@ class WeatherApp(tk.Tk):
         self.desc_label.config(text="")
         self.humidity_label.config(text="💧 Humidity: --%")
         self.wind_label.config(text="💨 Wind: -- m/s")
+        self.feels_like_label.config(text="🌡️ Feels Like: --°C")
         self.icon_label.config(image="")
         self.icon_image = None
 
@@ -221,6 +231,7 @@ class WeatherApp(tk.Tk):
         main = data.get("main", {})
         temp = main.get("temp")
         humidity = main.get("humidity")
+        feels_like = main.get("feels_like")
 
         wind = data.get("wind", {}).get("speed")
 
@@ -233,6 +244,11 @@ class WeatherApp(tk.Tk):
         self.desc_label.config(text=description)
         self.humidity_label.config(text=f"💧 Humidity: {humidity}%" if humidity is not None else "💧 Humidity: --%")
         self.wind_label.config(text=f"💨 Wind: {wind} m/s" if wind is not None else "💨 Wind: -- m/s")
+        self.feels_like_label.config(
+            text=f"🌡️ Feels Like: {feels_like:.1f}°C"
+            if feels_like is not None
+            else "🌡️ Feels Like: --°C"
+        )
 
         self._load_icon(icon_code)
 
