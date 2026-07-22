@@ -90,6 +90,7 @@ Type a city name (e.g. `Pune`, `London`, `Tokyo`) and hit **Enter** or click
 
 - 🔍 Search weather by city name
 - 🌡️ Current temperature in Celsius
+- 🌡️ Feels like temperature
 - 💧 Humidity percentage
 - 💨 Wind speed (m/s)
 - 🖼️ Live weather condition icon (sun, clouds, rain, etc.)
@@ -100,6 +101,10 @@ Type a city name (e.g. `Pune`, `London`, `Tokyo`) and hit **Enter** or click
   - No internet connection
   - Request timeout
   - Unexpected/malformed API responses
+
+## 📸 Screenshot
+
+![Weather App](assets/screenshot.png)
 
 ---
 

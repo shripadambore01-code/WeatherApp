@@ -4,7 +4,7 @@ Author: (your name here)
 
 Features:
 - Search weather by city name
-- Displays temperature (°C), humidity, wind speed
+- Displays current temperature (°C), feels like temperature, humidity, wind speed
 - Displays weather condition icon (fetched from OpenWeatherMap)
 - Displays weather description
 - Handles errors: city not found, invalid API key, no internet connection
