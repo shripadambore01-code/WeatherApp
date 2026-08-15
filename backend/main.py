@@ -8,7 +8,7 @@ from fastapi.exceptions import HTTPException
 from contextlib import asynccontextmanager
 
 from .config import settings
-from .routes import weather, geocoding, air_quality
+from .routes import weather, geocoding, air_quality, intelligence, ai
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,6 +38,8 @@ app.add_middleware(
 app.include_router(weather.router, prefix="/api", tags=["weather"])
 app.include_router(geocoding.router, prefix="/api", tags=["geocoding"])
 app.include_router(air_quality.router, prefix="/api", tags=["air_quality"])
+app.include_router(intelligence.router, prefix="/api", tags=["intelligence"])
+app.include_router(ai.router, prefix="/api", tags=["ai"])
 
 @app.get("/api/health")
 async def health_check():

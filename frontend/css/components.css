@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ATMOS WEATHER — HALLMARK BUBBLE COMPONENTS
+   ATMOS WEATHER — HALLMARK BUBBLE COMPONENTS & INTELLIGENCE SYSTEM
    Tactile Cards, Physical Push Buttons, High Contrast Visuals
    ========================================================================== */
 
@@ -25,6 +25,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .card-heading, .card-title, .section-title {
@@ -175,9 +177,297 @@
 }
 
 /* ==========================================================================
-   2. 24-HOUR HOURLY TIMELINE (NO OVERLAP / FIXED SLOT WIDTH)
+   2. WEATHER SCORE 2.0 & PROFILE SWITCHER
    ========================================================================== */
-.hourly-scroll-strip, .hourly-ribbon, .scroll-container {
+.profile-pills-wrap {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.profile-chip {
+    font-size: 0.725rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    background: var(--color-paper-muted);
+    color: var(--color-ink-secondary);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.profile-chip:hover {
+    background: var(--color-surface);
+    color: var(--color-ink);
+}
+
+.profile-chip.selected {
+    background: var(--accent-amber);
+    color: #ffffff;
+    border-color: var(--accent-amber-dark);
+}
+
+.score-display-flex {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 1rem 0;
+}
+
+.score-number-box {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+}
+
+.score-val {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent-amber-dark);
+}
+
+.score-denom {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-ink-tertiary);
+}
+
+.score-verdict {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.score-summary {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-ink-secondary);
+    margin-top: 0.2rem;
+}
+
+.score-reasons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-ink-secondary);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border-subtle);
+}
+
+/* ==========================================================================
+   3. BEST TIME TO DO ANYTHING & ACTIVITY SLIDERS
+   ========================================================================== */
+.activity-chips-strip {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.5rem;
+}
+.activity-chips-strip::-webkit-scrollbar { display: none; }
+
+.activity-pill {
+    white-space: nowrap;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: var(--radius-pill);
+    background: var(--color-paper-muted);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.activity-pill:hover {
+    background: var(--color-surface);
+    border-color: var(--color-border-focus);
+}
+
+.activity-pill.selected {
+    background: var(--color-ink);
+    color: #ffffff;
+    border-color: var(--color-ink);
+    box-shadow: 0 2px 0 0 rgba(0,0,0,0.25);
+}
+
+.window-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-bubble-sm);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.window-card.best-win {
+    background: var(--accent-mint-light);
+    border-color: var(--accent-mint);
+}
+
+.window-card.avoid-win {
+    background: var(--accent-coral-light);
+    border-color: var(--accent-coral);
+}
+
+.window-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.window-badge.best { color: #065f46; }
+.window-badge.avoid { color: #9f1239; }
+
+.window-time {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.window-score {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-ink-secondary);
+}
+
+.window-reasons {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.window-reasons li::before {
+    content: "• ";
+    color: var(--color-ink-tertiary);
+}
+
+.activity-hourly-bars {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 60px;
+    padding-top: 10px;
+}
+
+.act-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 2px;
+}
+
+.act-bar-fill {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    background: var(--accent-sky);
+    transition: height 0.3s ease;
+}
+
+.act-bar-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--color-ink-tertiary);
+}
+
+/* ==========================================================================
+   4. SMART DECISION CARDS GRID
+   ========================================================================== */
+.decision-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.decision-card {
+    padding: 1.1rem;
+    background: var(--color-paper-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-bubble-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.6rem;
+    transition: all 0.15s ease;
+}
+
+.decision-card:hover {
+    background: var(--color-surface);
+    border-color: var(--color-border-focus);
+    box-shadow: var(--shadow-bubble-sm);
+}
+
+.decision-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.decision-question {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.decision-verdict {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    color: #ffffff;
+}
+
+.decision-reason {
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: var(--color-ink-secondary);
+}
+
+/* ==========================================================================
+   5. WEATHER SHIFTS & WHAT CHANGED
+   ========================================================================== */
+.weather-shift-banner {
+    padding: 0.9rem 1.25rem;
+    background: var(--accent-amber-light);
+    border: 1px solid var(--accent-amber);
+    border-radius: var(--radius-bubble);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: var(--shadow-bubble-sm);
+}
+
+.what-changed-card {
+    padding: 1rem 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-bubble);
+    box-shadow: var(--shadow-bubble);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   6. 24-HOUR HOURLY & 7-DAY OUTLOOK
+   ========================================================================== */
+.hourly-scroll-strip, .hourly-ribbon {
     display: flex;
     gap: 0.75rem;
     overflow-x: auto;
@@ -186,10 +476,9 @@
     -webkit-overflow-scrolling: touch;
 }
 
-.hourly-card, .hourly-bubble-item, .hourly-item {
+.hourly-card {
     flex: 0 0 76px;
     min-width: 76px;
-    width: 76px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -202,53 +491,42 @@
     text-align: center;
 }
 
-.hourly-card:hover, .hourly-bubble-item:hover, .hourly-item:hover {
+.hourly-card:hover {
     background: var(--color-surface);
     border-color: var(--color-border-focus);
     transform: translateY(-2px);
     box-shadow: var(--shadow-bubble-sm);
 }
 
-.hourly-time, .hourly-time-label, .hourly-time-txt {
+.hourly-time {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-ink-secondary);
-    white-space: nowrap;
 }
 
-.hourly-icon, .hourly-icon-box, .hourly-icon-img {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-}
-
-.hourly-temp, .hourly-temp-val, .hourly-temp-txt {
+.hourly-temp {
     font-family: var(--font-display);
     font-size: 1.05rem;
     font-weight: 800;
     color: var(--color-ink);
 }
 
-.hourly-precip, .hourly-precip-badge, .hourly-precip-tag {
+.hourly-precip {
     font-size: 0.675rem;
     font-weight: 800;
     color: var(--accent-sky);
     background: var(--accent-sky-light);
     padding: 2px 6px;
     border-radius: var(--radius-pill);
-    white-space: nowrap;
 }
 
-/* ==========================================================================
-   3. 7-DAY FORECAST ROWS
-   ========================================================================== */
-.daily-rows-wrap, .daily-forecast-list, .daily-list {
+.daily-rows-wrap {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
 }
 
-.daily-row, .daily-row-pill {
+.daily-row {
     display: grid;
     grid-template-columns: 80px 36px 1fr 140px;
     align-items: center;
@@ -260,33 +538,19 @@
     transition: all 0.15s ease;
 }
 
-.daily-row:hover, .daily-row-pill:hover {
+.daily-row:hover {
     background: var(--color-surface);
     border-color: var(--color-border-focus);
     box-shadow: var(--shadow-bubble-sm);
 }
 
-.daily-day, .daily-name {
+.daily-day {
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--color-ink);
 }
 
-.daily-icon, .daily-icon-box {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.daily-icon img, .daily-weather-icon {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-}
-
-.daily-desc, .daily-condition-name, .daily-desc-txt {
+.daily-desc {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--color-ink-secondary);
@@ -295,14 +559,14 @@
     text-overflow: ellipsis;
 }
 
-.daily-temps, .daily-range-flex, .daily-temp-bar-container {
+.daily-temps {
     display: flex;
     align-items: center;
     gap: 0.6rem;
     justify-content: flex-end;
 }
 
-.temp-low, .min-temp-label, .temp-min-txt {
+.temp-low {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--color-ink-tertiary);
@@ -310,14 +574,14 @@
     text-align: right;
 }
 
-.temp-high, .max-temp-label, .temp-max-txt {
+.temp-high {
     font-size: 0.95rem;
     font-weight: 800;
     color: var(--color-ink);
     width: 28px;
 }
 
-.temp-bar, .heat-slider-rail, .daily-heat-slider {
+.temp-bar {
     flex: 1;
     height: 6px;
     background: var(--color-surface-sunken);
@@ -325,7 +589,7 @@
     position: relative;
 }
 
-.temp-range, .heat-slider-fill, .daily-heat-fill {
+.temp-range {
     position: absolute;
     top: 0; bottom: 0;
     border-radius: var(--radius-pill);
@@ -333,30 +597,60 @@
 }
 
 /* ==========================================================================
-   4. ENVIRONMENTAL TILES (AQI & UV)
+   7. BRIEFING, AQI, UV & SENSORS
    ========================================================================== */
-.aqi-score-flex, .aqi-display {
+.briefing-card {
+    background: var(--accent-amber-light);
+    border-color: var(--accent-amber);
+}
+
+.brief-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin-bottom: 0.4rem;
+}
+
+.brief-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+}
+
+.brief-recommendation {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-amber-dark);
+    background: var(--color-surface);
+    padding: 6px 12px;
+    border-radius: var(--radius-bubble-sm);
+    border: 1px solid var(--accent-amber);
+}
+
+.aqi-score-flex {
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
     margin-bottom: 0.85rem;
 }
 
-.aqi-huge-num, .aqi-value, .aqi-num {
+.aqi-huge-num {
     font-family: var(--font-display);
     font-size: 2.75rem;
     font-weight: 800;
     line-height: 1;
 }
 
-.aqi-badge, .aqi-label, .aqi-status-badge {
+.aqi-badge {
     font-size: 0.85rem;
     font-weight: 800;
     padding: 3px 10px;
     border-radius: var(--radius-pill);
 }
 
-.aqi-meter-bar, .scale-bar, .aqi-track {
+.aqi-meter-bar {
     height: 8px;
     border-radius: var(--radius-pill);
     background: linear-gradient(90deg, #10b981 0%, #f59e0b 25%, #f97316 50%, #ef4444 75%, #881337 100%);
@@ -364,7 +658,7 @@
     margin-bottom: 1.25rem;
 }
 
-.aqi-needle, .scale-marker, .aqi-pointer {
+.aqi-needle {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -376,13 +670,13 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.pollutants-mini-grid, .pollutants-grid, .pollutant-chips {
+.pollutants-mini-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
 }
 
-.pollutant-bubble, .pollutant, .pollutant-box {
+.pollutant {
     padding: 0.5rem 0.6rem;
     background: var(--color-paper-muted);
     border: 1px solid var(--color-border);
@@ -390,23 +684,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 0.75rem;
 }
 
-.pollutant-key, .label, .pollutant-name {
-    font-size: 0.725rem;
+.pollutant .label {
     font-weight: 700;
     color: var(--color-ink-tertiary);
 }
 
-.pollutant-val-txt, .value, .pollutant-val {
+.pollutant .value {
     font-family: var(--font-mono);
-    font-size: 0.85rem;
     font-weight: 700;
     color: var(--color-ink);
 }
 
-/* UV Dial */
-.uv-dial-center, .uv-gauge-container, .uv-dial-wrap {
+.uv-dial-center {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -414,12 +706,12 @@
     gap: 0.5rem;
 }
 
-.uv-dial-svg, .uv-gauge, .uv-semicircle-svg {
+.uv-dial-svg {
     width: 150px;
     height: 80px;
 }
 
-.uv-val-txt, .uv-value, .uv-score-val {
+.uv-val-txt {
     font-family: var(--font-display);
     font-size: 2.25rem;
     font-weight: 800;
@@ -427,10 +719,7 @@
     line-height: 1;
 }
 
-/* ==========================================================================
-   5. QUAD SENSOR TILES
-   ========================================================================== */
-.sensor-box, .metric-tile {
+.sensor-box {
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
@@ -442,7 +731,7 @@
     box-shadow: var(--shadow-bubble);
 }
 
-.sensor-top, .metric-header {
+.sensor-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -453,7 +742,7 @@
     color: var(--color-ink-secondary);
 }
 
-.sensor-val, .metric-big-val {
+.sensor-val {
     font-family: var(--font-display);
     font-size: 1.65rem;
     font-weight: 800;
@@ -461,7 +750,7 @@
     letter-spacing: -0.03em;
 }
 
-.sensor-note, .metric-sub {
+.sensor-note {
     font-size: 0.775rem;
     font-weight: 600;
     color: var(--color-ink-tertiary);
@@ -470,10 +759,118 @@
     text-overflow: ellipsis;
 }
 
+.score-badge-mini {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-amber-light);
+    color: var(--accent-amber-dark);
+}
+
 /* ==========================================================================
-   6. HALLMARK TACTILE PUSH BUTTONS & CONTROLS
+   8. MODALS & ASSISTANT DRAWER
    ========================================================================== */
-.tactile-btn, .city-pill, .btn {
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.15s ease;
+}
+
+.modal-dialog {
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-modal {
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ai-quick-prompts {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.ai-prompt-chip {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-paper-muted);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.ai-prompt-chip:hover {
+    background: var(--accent-amber-light);
+    border-color: var(--accent-amber);
+}
+
+.ai-chat-history {
+    min-height: 180px;
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.ai-msg {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-bubble-sm);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    max-width: 85%;
+}
+
+.ai-bot {
+    background: var(--color-paper-muted);
+    align-self: flex-start;
+    color: var(--color-ink);
+}
+
+.ai-user {
+    background: var(--color-ink);
+    color: #ffffff;
+    align-self: flex-end;
+}
+
+.ai-input-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.custom-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.custom-slider {
+    width: 100%;
+    margin-bottom: 1rem;
+    accent-color: var(--accent-amber);
+}
+
+/* Hallmark Buttons */
+.tactile-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -491,24 +888,17 @@
     user-select: none;
 }
 
-.tactile-btn:hover, .city-pill:hover {
+.tactile-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 0 0 var(--color-border);
 }
 
-.tactile-btn:active, .city-pill:active {
+.tactile-btn:active {
     transform: translateY(2px);
     box-shadow: 0 0 0 0 var(--color-border);
 }
 
-.tactile-btn.active {
-    background: var(--accent-amber-light);
-    color: var(--accent-amber-dark);
-    border-color: var(--accent-amber);
-    box-shadow: 0 2px 0 0 var(--accent-amber);
-}
-
-.tactile-btn-icon, .btn-icon {
+.tactile-btn-icon {
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -523,18 +913,17 @@
     transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.tactile-btn-icon:hover, .btn-icon:hover {
+.tactile-btn-icon:hover {
     transform: translateY(-1px);
     box-shadow: 0 3px 0 0 var(--color-border);
 }
 
-.tactile-btn-icon:active, .btn-icon:active {
+.tactile-btn-icon:active {
     transform: translateY(2px);
     box-shadow: 0 0 0 0 var(--color-border);
 }
 
-/* Unit Toggle Switch */
-.unit-toggle-pill, .unit-switch-control {
+.unit-toggle-pill {
     display: flex;
     align-items: center;
     background: var(--color-paper-muted);
@@ -545,7 +934,7 @@
     user-select: none;
 }
 
-.unit-chip, .unit-opt {
+.unit-chip {
     padding: 3px 9px;
     font-size: 0.75rem;
     font-weight: 800;
@@ -554,13 +943,12 @@
     transition: all 0.15s ease;
 }
 
-.unit-chip.selected, .unit-opt.selected {
+.unit-chip.selected {
     background: var(--accent-amber);
     color: #ffffff;
     box-shadow: 0 2px 4px rgba(245, 158, 11, 0.4);
 }
 
-/* Search Dropdown */
 .search-dropdown {
     position: absolute;
     top: calc(100% + 8px);
@@ -576,9 +964,7 @@
     padding: 0.4rem;
 }
 
-.search-dropdown.hidden {
-    display: none;
-}
+.search-dropdown.hidden { display: none; }
 
 .search-item {
     padding: 0.6rem 0.85rem;
@@ -602,30 +988,13 @@
     color: var(--color-ink-tertiary);
 }
 
-/* Map Frame */
-.map-frame, .map-viewport, .map-container {
+.map-frame {
     height: 340px;
     border-radius: var(--radius-bubble);
     overflow: hidden;
     border: 1px solid var(--color-border);
 }
 
-/* Alert Banner */
-.alert-pill-banner, .alert-banner {
-    padding: 1rem 1.25rem;
-    background: var(--accent-coral-light);
-    border: 1px solid var(--accent-coral);
-    border-radius: var(--radius-bubble);
-    color: #9f1239;
-    font-size: 0.9rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    box-shadow: var(--shadow-bubble-sm);
-}
-
-/* Toast Notifications */
 .toast-container {
     position: fixed;
     bottom: 1.5rem;
@@ -648,15 +1017,8 @@
     gap: 0.75rem;
     font-size: 0.875rem;
     font-weight: 600;
-    animation: toast-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes toast-in {
-    from { transform: translateY(12px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* Sidebar Drawer */
 .app-sidebar {
     position: fixed;
     top: 0;
@@ -672,9 +1034,7 @@
     overflow-y: auto;
 }
 
-.app-sidebar.open {
-    right: 0;
-}
+.app-sidebar.open { right: 0; }
 
 .sidebar-overlay {
     position: fixed;
@@ -691,34 +1051,4 @@
     pointer-events: auto;
 }
 
-.favorite-chip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.6rem 0.9rem;
-    background: var(--color-paper-muted);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-bubble-sm);
-    margin-bottom: 0.5rem;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.history-item {
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-bubble-sm);
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--color-ink-secondary);
-}
-
-.history-item:hover {
-    background: var(--color-paper-muted);
-    color: var(--color-ink);
-}
-
-/* Hide helper */
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }

@@ -11,19 +11,30 @@ export function initSearch() {
     
     if (!input || !dropdown) return;
 
-    const performSearch = async (query) => {
+    const performSearch = async (rawQuery) => {
+        const query = rawQuery.trim();
         if (!query || query.length < 2) {
             dropdown.innerHTML = '';
             dropdown.style.display = 'none';
             currentResults = [];
             return;
         }
+
+        // Check if query is a natural language question / action
+        const lower = query.toLowerCase();
+        const isNLP = lower.startsWith('compare') || lower.startsWith('will it') || lower.startsWith('best time') || lower.startsWith('should i');
         
-        // Show loading state...
-        const res = await searchCities(query);
+        let searchTarget = query;
+        if (isNLP) {
+            // Extract clean location if present
+            const clean = query.replace(/^(compare|vs|will it rain in|best time to run in|weather in)\s+/i, '').trim();
+            if (clean) searchTarget = clean;
+        }
+
+        const res = await searchCities(searchTarget);
         if (res && res.results) {
             currentResults = res.results;
-            renderDropdown(currentResults, dropdown);
+            renderDropdown(currentResults, dropdown, query, isNLP);
         }
     };
 
@@ -37,25 +48,37 @@ export function initSearch() {
     });
 
     input.addEventListener('keydown', (e) => {
-        if (!currentResults.length) return;
-        
-        const items = dropdown.querySelectorAll('.search-item');
-        
-        if (e.key === 'ArrowDown') {
+        if (e.key === 'Enter') {
+            const rawVal = input.value.trim();
+            const lower = rawVal.toLowerCase();
+
+            // Handle natural question direct submission to AI
+            if (lower.startsWith('will it') || lower.startsWith('should i') || lower.startsWith('why does') || lower.includes('best time')) {
+                e.preventDefault();
+                dropdown.style.display = 'none';
+                document.getElementById('ai-modal-overlay')?.classList.remove('hidden');
+                const aiInput = document.getElementById('ai-user-input');
+                if (aiInput) aiInput.value = rawVal;
+                document.getElementById('ai-submit-btn')?.click();
+                input.value = '';
+                return;
+            }
+
+            if (selectedIndex >= 0 && selectedIndex < currentResults.length) {
+                e.preventDefault();
+                selectCity(currentResults[selectedIndex]);
+            } else if (currentResults.length > 0) {
+                e.preventDefault();
+                selectCity(currentResults[0]);
+            }
+        } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             selectedIndex = Math.min(selectedIndex + 1, currentResults.length - 1);
-            highlightItem(items, selectedIndex);
+            highlightItem(dropdown.querySelectorAll('.search-item'), selectedIndex);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             selectedIndex = Math.max(selectedIndex - 1, 0);
-            highlightItem(items, selectedIndex);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (selectedIndex >= 0 && selectedIndex < currentResults.length) {
-                selectCity(currentResults[selectedIndex]);
-            } else if (currentResults.length > 0) {
-                selectCity(currentResults[0]);
-            }
+            highlightItem(dropdown.querySelectorAll('.search-item'), selectedIndex);
         } else if (e.key === 'Escape') {
             dropdown.style.display = 'none';
         }
@@ -68,11 +91,25 @@ export function initSearch() {
     });
 }
 
-function renderDropdown(results, dropdown) {
+function renderDropdown(results, dropdown, rawQuery, isNLP) {
     dropdown.innerHTML = '';
     if (!results.length) {
         dropdown.style.display = 'none';
         return;
+    }
+
+    if (isNLP) {
+        const nlpHeader = document.createElement('div');
+        nplHeaderStyle(nlpHeader);
+        nlpHeader.innerHTML = `<span>✨ Ask Atmos AI: "<strong>${rawQuery}</strong>"</span>`;
+        nlpHeader.addEventListener('click', () => {
+            dropdown.style.display = 'none';
+            document.getElementById('ai-modal-overlay')?.classList.remove('hidden');
+            const aiInput = document.getElementById('ai-user-input');
+            if (aiInput) aiInput.value = rawQuery;
+            document.getElementById('ai-submit-btn')?.click();
+        });
+        dropdown.appendChild(nlpHeader);
     }
     
     results.forEach((city, idx) => {
@@ -87,6 +124,17 @@ function renderDropdown(results, dropdown) {
     });
     
     dropdown.style.display = 'block';
+}
+
+function nplHeaderStyle(el) {
+    el.style.padding = '0.6rem 0.85rem';
+    el.style.fontSize = '0.8rem';
+    el.style.fontWeight = '700';
+    el.style.color = 'var(--accent-amber-dark)';
+    el.style.background = 'var(--accent-amber-light)';
+    el.style.borderRadius = 'var(--radius-bubble-sm)';
+    el.style.marginBottom = '0.35rem';
+    el.style.cursor = 'pointer';
 }
 
 function highlightItem(items, index) {
@@ -113,7 +161,5 @@ function selectCity(city) {
     };
     
     addToHistory(cityData);
-    
-    // Dispatch event to main app to load this city
     window.dispatchEvent(new CustomEvent('citySelected', { detail: cityData }));
 }
