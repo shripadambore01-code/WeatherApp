@@ -1,82 +1,86 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 import httpx
 import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-TIMEOUT = 10.0
+INDIAN_STATES = {
+    'odisha': {'name': 'Bhubaneswar', 'state': 'Odisha', 'country': 'India', 'latitude': 20.2961, 'longitude': 85.8245, 'timezone': 'Asia/Kolkata'},
+    'orissa': {'name': 'Bhubaneswar', 'state': 'Odisha', 'country': 'India', 'latitude': 20.2961, 'longitude': 85.8245, 'timezone': 'Asia/Kolkata'},
+    'maharashtra': {'name': 'Mumbai', 'state': 'Maharashtra', 'country': 'India', 'latitude': 19.0760, 'longitude': 72.8777, 'timezone': 'Asia/Kolkata'},
+    'karnataka': {'name': 'Bengaluru', 'state': 'Karnataka', 'country': 'India', 'latitude': 12.9716, 'longitude': 77.5946, 'timezone': 'Asia/Kolkata'},
+    'tamil nadu': {'name': 'Chennai', 'state': 'Tamil Nadu', 'country': 'India', 'latitude': 13.0827, 'longitude': 80.2707, 'timezone': 'Asia/Kolkata'},
+    'tamilnadu': {'name': 'Chennai', 'state': 'Tamil Nadu', 'country': 'India', 'latitude': 13.0827, 'longitude': 80.2707, 'timezone': 'Asia/Kolkata'},
+    'kerala': {'name': 'Thiruvananthapuram', 'state': 'Kerala', 'country': 'India', 'latitude': 8.5241, 'longitude': 76.9366, 'timezone': 'Asia/Kolkata'},
+    'gujarat': {'name': 'Ahmedabad', 'state': 'Gujarat', 'country': 'India', 'latitude': 23.0225, 'longitude': 72.5714, 'timezone': 'Asia/Kolkata'},
+    'rajasthan': {'name': 'Jaipur', 'state': 'Rajasthan', 'country': 'India', 'latitude': 26.9124, 'longitude': 75.7873, 'timezone': 'Asia/Kolkata'},
+    'punjab': {'name': 'Chandigarh', 'state': 'Punjab', 'country': 'India', 'latitude': 30.7333, 'longitude': 76.7794, 'timezone': 'Asia/Kolkata'},
+    'delhi': {'name': 'New Delhi', 'state': 'Delhi', 'country': 'India', 'latitude': 28.6139, 'longitude': 77.2090, 'timezone': 'Asia/Kolkata'},
+    'jammu and kashmir': {'name': 'Srinagar', 'state': 'Jammu & Kashmir', 'country': 'India', 'latitude': 34.0837, 'longitude': 74.7973, 'timezone': 'Asia/Kolkata'},
+    'ladakh': {'name': 'Leh', 'state': 'Ladakh', 'country': 'India', 'latitude': 34.1526, 'longitude': 77.5771, 'timezone': 'Asia/Kolkata'}
+}
 
 @router.get("/geocode")
-async def geocode(
-    q: str = Query(..., min_length=1, description="Search query for location"),
-    limit: int = Query(5, description="Number of results to return"),
-    lang: str = Query("en", description="Language for results")
+async def geocode_city(
+    q: str = Query(..., description="City or State name to search"),
+    limit: int = Query(5, description="Maximum results"),
+    lang: str = Query("en", description="Language code")
 ):
-    clean_q = q.strip()
-    if not clean_q:
-        raise HTTPException(status_code=400, detail="Search query cannot be empty")
-
-    url = "https://geocoding-api.open-meteo.com/v1/search"
-    params = {
-        "name": clean_q,
-        "count": limit,
-        "language": lang,
-        "format": "json"
-    }
+    if not q or not q.strip():
+        raise HTTPException(status_code=400, detail="Query parameter 'q' cannot be empty.")
+    
+    clean_q = q.lower().strip()
+    if clean_q in INDIAN_STATES:
+        s = INDIAN_STATES[clean_q]
+        return {
+            "results": [{
+                "name": f"{s['state']} ({s['name']})",
+                "country": s["country"],
+                "admin1": s["state"],
+                "latitude": s["latitude"],
+                "longitude": s["longitude"],
+                "timezone": s["timezone"]
+            }]
+        }
+        
+    url = f"https://geocoding-api.open-meteo.com/v1/search?name={q}&count={limit}&language={lang}&format=json"
     
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-            response = await client.get(url, params=params)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
             response.raise_for_status()
-            return response.json()
-    except httpx.TimeoutException as e:
-        logger.error(f"Timeout fetching geocode: {e}")
-        raise TimeoutError("Geocoding API timeout")
-    except httpx.RequestError as e:
-        logger.error(f"Request error fetching geocode: {e}")
-        raise ConnectionError("Geocoding API connection error")
-    except httpx.HTTPStatusError as e:
-        logger.error(f"HTTP status error fetching geocode: {e}")
-        raise HTTPException(status_code=e.response.status_code, detail="Geocoding API error")
+            data = response.json()
+            if data.get("results"):
+                return data
+            for k, v in INDIAN_STATES.items():
+                if k in clean_q or clean_q in k:
+                    return {
+                        "results": [{
+                            "name": f"{v['state']} ({v['name']})",
+                            "country": v["country"],
+                            "admin1": v["state"],
+                            "latitude": v["latitude"],
+                            "longitude": v["longitude"],
+                            "timezone": v["timezone"]
+                        }]
+                    }
+            return data
+    except Exception as e:
+        logger.error(f"Error calling geocoding API: {e}")
+        raise HTTPException(status_code=502, detail="Error fetching geocoding data.")
 
 @router.get("/reverse-geocode")
 async def reverse_geocode(
     lat: float = Query(..., description="Latitude"),
     lon: float = Query(..., description="Longitude")
 ):
-    # Note: Open-Meteo's geocoding API does not have a dedicated reverse geocoding endpoint 
-    # but provides one through geocoding-api.open-meteo.com/v1/search?name=&latitude=&longitude=
-    # Or typically one might use Nominatim but the spec says "Uses Open-Meteo geocoding to reverse lookup".
-    # Wait, open-meteo doesn't actually have a reverse-geocoding API that works strictly by lat/lon alone
-    # wait, they do not document a reverse geocoding API, but we'll try to use search or just 
-    # use what they provide if possible. Let's write a generic proxy. Wait, I will use BigDataCloud or just fallback.
-    # Actually, open-meteo does not have reverse geocode. I will proxy to geocoding API with a mock or what?
-    # I'll just proxy to open-meteo geocoding api if there's one, if not I'll just provide an empty list.
-    pass
-
-    url = "https://geocoding-api.open-meteo.com/v1/search"
-    # Some people use reverse geocoding via other APIs. I will just pass it to the search API.
-    # Actually open-meteo's API doesn't support reverse geocoding by default unless it's a specific endpoint.
-    # Let's just create the route structure as requested.
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "count": 1,
-        "format": "json"
-    }
-    
+    url = f"https://geocoding-api.open-meteo.com/v1/search?latitude={lat}&longitude={lon}&count=1&format=json"
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-            response = await client.get(url, params=params)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
             response.raise_for_status()
             return response.json()
-    except httpx.TimeoutException as e:
-        logger.error(f"Timeout fetching reverse geocode: {e}")
-        raise TimeoutError("Geocoding API timeout")
-    except httpx.RequestError as e:
-        logger.error(f"Request error fetching reverse geocode: {e}")
-        raise ConnectionError("Geocoding API connection error")
-    except httpx.HTTPStatusError as e:
-        logger.error(f"HTTP status error fetching reverse geocode: {e}")
-        raise HTTPException(status_code=e.response.status_code, detail="Geocoding API error")
+    except Exception as e:
+        logger.error(f"Error in reverse geocoding: {e}")
+        raise HTTPException(status_code=502, detail="Error reverse geocoding coordinates.")
