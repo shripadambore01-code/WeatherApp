@@ -32,7 +32,7 @@
 <body data-weather="clear-day">
 
     <!-- Main Responsive Layout Wrapper -->
-    <div class="app-viewport-wrapper">
+    <div class="app-wrapper">
         
         <!-- Floating Hallmark Header -->
         <header class="bubble-header">
@@ -51,7 +51,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--color-ink-tertiary);">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
                     </svg>
-                    <input type="text" id="search-input" class="search-input-field" data-i18n="search.placeholder" placeholder="Search city, state (e.g. Odisha, Pune, Delhi, Mumbai...)" autocomplete="off">
+                    <input type="text" id="search-input" class="search-input-field" data-i18n="search.placeholder" placeholder="Search city or state in India..." autocomplete="off">
                     <button class="tactile-btn-icon" id="voice-btn" aria-label="Voice Search" title="Search with Voice" style="width: 26px; height: 26px; border: none; box-shadow: none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
@@ -69,11 +69,11 @@
 
             <!-- Controls Group -->
             <div class="header-actions-group">
-                <button class="tactile-btn" id="open-ai-modal-btn" data-i18n="btn.ai" style="background: var(--accent-amber-light); color: var(--accent-amber-dark); border-color: var(--accent-amber);">
-                    ✨ Atmos AI
+                <button class="tactile-btn" id="open-ai-modal-btn" data-i18n="btn.ai" style="background: var(--accent-amber-light); color: var(--accent-amber-dark); border-color: var(--accent-amber); font-weight: 700;">
+                    ✨ Ask Atmos AI
                 </button>
 
-                <select id="language-select" class="tactile-btn" style="padding: 0.4rem 0.75rem; cursor: pointer; font-weight: 800;">
+                <select id="language-select" class="tactile-btn" style="padding: 0.4rem 0.6rem; cursor: pointer; font-weight: 700;">
                     <option value="en">English (EN)</option>
                     <option value="hi">हिंदी (HI)</option>
                     <option value="es">Español (ES)</option>
@@ -106,18 +106,17 @@
             </div>
         </header>
 
-        <!-- Weather Shifts Banner (Dynamic Alert) -->
-        <div id="shift-banner-container" class="hidden"></div>
+        <!-- Weather Alerts container -->
         <div id="alerts-section" class="hidden"></div>
 
-        <!-- Master Content Grid -->
-        <main class="bento-container" id="weather-content">
+        <!-- Master Bento Grid (2-Column Desktop, 1-Column Mobile) -->
+        <main class="bento-grid" id="weather-content">
             
-            <!-- LEFT COLUMN: Hero, Hourly, 7-Day & Charts -->
-            <div class="bento-left-col">
+            <!-- LEFT COLUMN: Hero, Hourly, 7-Day, Chart -->
+            <div class="bento-col">
                 
                 <!-- 1. Tactile Hero Card -->
-                <section class="bubble-card hero-card" id="hero-section">
+                <div class="bubble-card hero-card" id="hero-section">
                     <div class="hero-header-row">
                         <div>
                             <div class="station-pill">
@@ -157,51 +156,51 @@
                         </div>
                         <span class="range-txt" id="hero-temp-max">Max: 22°</span>
                     </div>
-                </section>
+                </div>
 
                 <!-- 2. 24-Hour Hourly Progression -->
-                <section class="bubble-card" id="hourly-section">
+                <div class="bubble-card" id="hourly-section">
                     <div class="card-header-bar">
-                        <div class="card-heading">
+                        <h2 class="card-heading">
                             <span>🕒</span>
                             <span data-i18n="section.hourly">24-Hour Hourly Progression</span>
-                        </div>
+                        </h2>
                     </div>
                     <div class="hourly-scroll-strip" id="hourly-container"></div>
-                </section>
+                </div>
 
                 <!-- 3. 7-Day Outlook -->
-                <section class="bubble-card" id="daily-section">
+                <div class="bubble-card" id="daily-section">
                     <div class="card-header-bar">
-                        <div class="card-heading">
+                        <h2 class="card-heading">
                             <span>📅</span>
                             <span data-i18n="section.daily">7-Day Meteorological Outlook</span>
-                        </div>
+                        </h2>
                     </div>
                     <div class="daily-rows-wrap" id="daily-container"></div>
-                </section>
+                </div>
 
                 <!-- 4. Thermal Rhythm & Humidity Spectrum Chart -->
-                <section class="bubble-card" id="charts-section">
+                <div class="bubble-card" id="charts-section">
                     <div class="card-header-bar">
-                        <div class="card-heading">
+                        <h2 class="card-heading">
                             <span>📊</span>
                             <span data-i18n="section.temperature">Thermal Rhythm & Humidity Spectrum</span>
-                        </div>
+                        </h2>
                     </div>
                     <div id="temp-chart" style="min-height: 240px;"></div>
-                </section>
+                </div>
             </div>
 
-            <!-- RIGHT COLUMN: Air Quality, UV, Sensor Pods & Map -->
-            <div class="bento-right-col">
+            <!-- RIGHT COLUMN: Air Quality, UV, Sensors, Map -->
+            <div class="bento-col">
                 
                 <!-- Air Quality & UV Duo Grid -->
                 <div class="duo-grid">
                     <!-- Air Quality -->
-                    <section class="bubble-card" id="aqi-section">
+                    <div class="bubble-card" id="aqi-section">
                         <div class="card-header-bar">
-                            <div class="card-heading" data-i18n="section.aqi">Air Quality Index</div>
+                            <h2 class="card-heading" data-i18n="section.aqi">Air Quality Index</h2>
                         </div>
                         <div class="aqi-score-flex">
                             <span class="aqi-huge-num" id="aqi-value">32</span>
@@ -216,12 +215,12 @@
                             <div class="pollutant"><span class="label">Ozone</span><span class="value" id="o3-val">42 µg/m³</span></div>
                             <div class="pollutant"><span class="label">NO₂</span><span class="value" id="no2-val">12 µg/m³</span></div>
                         </div>
-                    </section>
+                    </div>
 
                     <!-- UV Index -->
-                    <section class="bubble-card" id="uv-section">
+                    <div class="bubble-card" id="uv-section">
                         <div class="card-header-bar">
-                            <div class="card-heading" data-i18n="section.uv">Ultraviolet Radiance</div>
+                            <h2 class="card-heading" data-i18n="section.uv">Ultraviolet Radiance</h2>
                         </div>
                         <div class="uv-dial-center">
                             <svg class="uv-dial-svg" viewBox="0 0 120 70">
@@ -231,30 +230,30 @@
                             <div class="uv-val-txt" id="uv-value">4.2</div>
                             <div class="station-pill" id="uv-label">Moderate</div>
                         </div>
-                    </section>
+                    </div>
                 </div>
 
                 <!-- Atmospheric Sensor Pods (Quad Grid) -->
                 <div class="quad-grid" id="sensors-grid">
-                    <div class="sensor-box">
+                    <div class="bubble-card sensor-box">
                         <div class="sensor-top"><span data-i18n="sensor.humidity">Humidity</span><span>💧</span></div>
                         <div class="sensor-val" id="hero-humidity">64%</div>
                         <div class="sensor-note">Dew point ~11°C</div>
                     </div>
 
-                    <div class="sensor-box">
+                    <div class="bubble-card sensor-box">
                         <div class="sensor-top"><span data-i18n="sensor.wind">Wind & Gusts</span><span>💨</span></div>
                         <div class="sensor-val" id="hero-wind">14 km/h SW</div>
                         <div class="sensor-note">Gusts up to 22 km/h</div>
                     </div>
 
-                    <div class="sensor-box">
+                    <div class="bubble-card sensor-box">
                         <div class="sensor-top"><span data-i18n="sensor.pressure">Pressure</span><span>⏲️</span></div>
                         <div class="sensor-val" id="hero-pressure">1014 hPa</div>
                         <div class="sensor-note">Steady barometer</div>
                     </div>
 
-                    <div class="sensor-box">
+                    <div class="bubble-card sensor-box">
                         <div class="sensor-top"><span data-i18n="sensor.sun">Sun Rhythm</span><span>🌅</span></div>
                         <div class="sensor-val" id="hero-sunrise" style="font-size: 1.15rem;">05:48 AM</div>
                         <div class="sensor-note" id="hero-sunset">Sunset: 08:24 PM</div>
@@ -262,9 +261,9 @@
                 </div>
 
                 <!-- Interactive Leaflet Weather Map -->
-                <section class="bubble-card" id="map-section" style="padding: 0; overflow: hidden;">
+                <div class="bubble-card" id="map-section" style="padding: 0; overflow: hidden;">
                     <div class="map-frame" id="weather-map"></div>
-                </section>
+                </div>
             </div>
         </main>
 
