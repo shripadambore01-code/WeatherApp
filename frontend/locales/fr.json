@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "Atmos",
+    "tagline": "Prévisions météorologiques avancées avec des données en temps réel"
+  },
+  "search": {
+    "placeholder": "Rechercher une ville...",
+    "voice": "Recherche vocale",
+    "noResults": "Aucun résultat trouvé"
+  },
+  "weather": {
+    "temperature": "Température",
+    "feelsLike": "Ressenti",
+    "humidity": "Humidité",
+    "wind": "Vent",
+    "pressure": "Pression",
+    "visibility": "Visibilité",
+    "uvIndex": "Indice UV",
+    "sunrise": "Lever du soleil",
+    "sunset": "Coucher du soleil",
+    "dewPoint": "Point de rosée"
+  },
+  "forecast": {
+    "hourly": "Prévisions horaires",
+    "daily": "Prévisions quotidiennes",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain"
+  },
+  "aqi": {
+    "title": "Indice de qualité de l'air",
+    "good": "Bon",
+    "moderate": "Modéré",
+    "unhealthySensitive": "Malsain pour les groupes sensibles",
+    "unhealthy": "Malsain",
+    "veryUnhealthy": "Très malsain",
+    "hazardous": "Dangereux"
+  },
+  "uv": {
+    "title": "Indice UV",
+    "low": "Faible",
+    "moderate": "Modéré",
+    "high": "Élevé",
+    "veryHigh": "Très élevé",
+    "extreme": "Extrême",
+    "protection": {
+      "none": "Aucune protection nécessaire.",
+      "some": "Protection nécessaire. Portez des lunettes de soleil et de la crème solaire.",
+      "high": "Protection supplémentaire nécessaire. Évitez le soleil à midi."
+    }
+  },
+  "favorites": {
+    "title": "Favoris",
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris",
+    "empty": "Aucun favori pour le moment"
+  },
+  "history": {
+    "title": "Historique de recherche",
+    "clear": "Effacer l'historique",
+    "empty": "Aucun historique de recherche"
+  },
+  "settings": {
+    "theme": "Thème",
+    "units": "Unités",
+    "language": "Langue",
+    "celsius": "Celsius",
+    "fahrenheit": "Fahrenheit"
+  },
+  "errors": {
+    "cityNotFound": "Ville introuvable.",
+    "networkError": "Erreur réseau survenue.",
+    "timeout": "Délai d'attente de la demande dépassé.",
+    "geolocationDenied": "Accès à la géolocalisation refusé.",
+    "generic": "Une erreur est survenue."
+  },
+  "alerts": {
+    "highWind": "Alerte vents violents",
+    "extremeHeat": "Alerte chaleur extrême",
+    "extremeCold": "Alerte froid extrême",
+    "poorAqi": "Alerte mauvaise qualité de l'air",
+    "highUv": "Alerte UV élevé"
+  },
+  "map": {
+    "title": "Carte météorologique",
+    "layers": {
+      "precipitation": "Précipitations",
+      "clouds": "Nuages",
+      "temperature": "Température",
+      "wind": "Vent"
+    }
+  },
+  "compare": {
+    "title": "Comparer la météo",
+    "select": "Sélectionner une ville",
+    "vs": "contre"
+  },
+  "loading": {
+    "text": "Chargement...",
+    "refreshing": "Actualisation..."
+  },
+  "time": {
+    "justNow": "À l'instant",
+    "minutesAgo": "il y a quelques minutes",
+    "hoursAgo": "il y a quelques heures"
+  }
+}

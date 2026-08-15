@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "Atmos",
+    "tagline": "リアルタイムデータによる高度な天気予報"
+  },
+  "search": {
+    "placeholder": "都市を検索...",
+    "voice": "音声検索",
+    "noResults": "結果が見つかりません"
+  },
+  "weather": {
+    "temperature": "温度",
+    "feelsLike": "体感温度",
+    "humidity": "湿度",
+    "wind": "風",
+    "pressure": "気圧",
+    "visibility": "視程",
+    "uvIndex": "UV指数",
+    "sunrise": "日の出",
+    "sunset": "日の入り",
+    "dewPoint": "露点"
+  },
+  "forecast": {
+    "hourly": "1時間ごとの予報",
+    "daily": "毎日の予報",
+    "today": "今日",
+    "tomorrow": "明日"
+  },
+  "aqi": {
+    "title": "空気質指数",
+    "good": "良い",
+    "moderate": "普通",
+    "unhealthySensitive": "敏感なグループには不健康",
+    "unhealthy": "不健康",
+    "veryUnhealthy": "非常に不健康",
+    "hazardous": "危険"
+  },
+  "uv": {
+    "title": "UV指数",
+    "low": "低い",
+    "moderate": "普通",
+    "high": "高い",
+    "veryHigh": "非常に高い",
+    "extreme": "極端",
+    "protection": {
+      "none": "保護は必要ありません。",
+      "some": "保護が必要です。サングラスと日焼け止めを使用してください。",
+      "high": "特別な保護が必要です。日中の太陽を避けてください。"
+    }
+  },
+  "favorites": {
+    "title": "お気に入り",
+    "add": "お気に入りに追加",
+    "remove": "お気に入りから削除",
+    "empty": "お気に入りはまだありません"
+  },
+  "history": {
+    "title": "検索履歴",
+    "clear": "履歴を消去",
+    "empty": "検索履歴なし"
+  },
+  "settings": {
+    "theme": "テーマ",
+    "units": "単位",
+    "language": "言語",
+    "celsius": "摂氏",
+    "fahrenheit": "華氏"
+  },
+  "errors": {
+    "cityNotFound": "都市が見つかりません。",
+    "networkError": "ネットワークエラーが発生しました。",
+    "timeout": "リクエストがタイムアウトしました。",
+    "geolocationDenied": "位置情報へのアクセスが拒否されました。",
+    "generic": "エラーが発生しました。"
+  },
+  "alerts": {
+    "highWind": "強風注意報",
+    "extremeHeat": "猛暑注意報",
+    "extremeCold": "極寒注意報",
+    "poorAqi": "大気汚染注意報",
+    "highUv": "高UV注意報"
+  },
+  "map": {
+    "title": "天気図",
+    "layers": {
+      "precipitation": "降水量",
+      "clouds": "雲",
+      "temperature": "温度",
+      "wind": "風"
+    }
+  },
+  "compare": {
+    "title": "天気を比較",
+    "select": "比較する都市を選択",
+    "vs": "対"
+  },
+  "loading": {
+    "text": "読み込み中...",
+    "refreshing": "更新中..."
+  },
+  "time": {
+    "justNow": "たった今",
+    "minutesAgo": "数分前",
+    "hoursAgo": "数時間前"
+  }
+}

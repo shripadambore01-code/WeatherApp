@@ -1,0 +1,131 @@
+/* c:\Users\shrip\OneDrive\Desktop\WeatherApp\frontend\css\weather-backgrounds.css */
+
+/* 
+  Atmospheric Backgrounds
+  Applied to body or hero-section using data-weather attribute
+*/
+
+body {
+    transition: background-image 1s ease-in-out, background-color 1s ease-in-out;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+[data-weather="clear-day"] {
+    background: linear-gradient(135deg, hsl(40, 90%, 70%) 0%, hsl(200, 80%, 60%) 100%);
+    color: #ffffff; /* Override base text for hero if needed, but usually hero uses its own vars or we keep body text as is */
+}
+
+[data-weather="clear-night"] {
+    background: linear-gradient(135deg, hsl(220, 50%, 8%) 0%, hsl(240, 40%, 15%) 100%);
+    position: relative;
+}
+[data-weather="clear-night"]::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: 0.5;
+    z-index: -1;
+    animation: twinkle 5s infinite alternate;
+}
+
+[data-weather="clouds-day"] {
+    background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%); /* soft grey-blue substitute */
+    background: linear-gradient(135deg, hsl(210, 30%, 80%) 0%, hsl(215, 20%, 60%) 100%);
+}
+
+[data-weather="clouds-night"] {
+    background: linear-gradient(135deg, hsl(220, 15%, 25%) 0%, hsl(220, 10%, 15%) 100%);
+}
+
+[data-weather="rain"] {
+    background: linear-gradient(135deg, hsl(210, 20%, 40%) 0%, hsl(215, 30%, 25%) 100%);
+    position: relative;
+    overflow: hidden;
+}
+[data-weather="rain"]::after {
+    content: "";
+    position: fixed;
+    top: -100%; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(transparent, rgba(255,255,255,0.2) 10%, transparent);
+    background-size: 20px 100px;
+    z-index: -1;
+    animation: rain 0.5s linear infinite;
+}
+
+[data-weather="snow"] {
+    background: linear-gradient(135deg, hsl(210, 40%, 90%) 0%, hsl(200, 30%, 75%) 100%);
+}
+
+[data-weather="thunderstorm"] {
+    background: linear-gradient(135deg, hsl(260, 20%, 20%) 0%, hsl(240, 30%, 10%) 100%);
+    animation: lightning 10s infinite;
+}
+
+[data-weather="fog"] {
+    background: linear-gradient(135deg, hsl(210, 10%, 70%) 0%, hsl(210, 5%, 50%) 100%);
+    position: relative;
+}
+[data-weather="fog"]::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: inherit;
+    filter: blur(10px);
+    opacity: 0.8;
+    z-index: -1;
+}
+
+/* Specific Animations for Weather */
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.8; }
+}
+
+@keyframes rain {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 100vh; }
+}
+
+@keyframes lightning {
+    0%, 95%, 98% { background-color: transparent; }
+    96%, 99% { background-color: rgba(255,255,255,0.2); background-blend-mode: overlay; }
+}
+
+/* Adjustment for text colors on dark atmospheric backgrounds */
+[data-weather="clear-night"] .hero-section,
+[data-weather="rain"] .hero-section,
+[data-weather="thunderstorm"] .hero-section,
+[data-weather="clouds-night"] .hero-section {
+    color: #ffffff;
+}
+
+[data-weather="clear-night"] .hero-metrics,
+[data-weather="rain"] .hero-metrics,
+[data-weather="thunderstorm"] .hero-metrics,
+[data-weather="clouds-night"] .hero-metrics {
+    color: #ffffff;
+    background: rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-weather="clear-night"] .metric-label,
+[data-weather="rain"] .metric-label,
+[data-weather="thunderstorm"] .metric-label,
+[data-weather="clouds-night"] .metric-label {
+    color: rgba(255,255,255,0.7);
+}
+
+[data-weather="clear-night"] .text-muted,
+[data-weather="rain"] .text-muted,
+[data-weather="thunderstorm"] .text-muted,
+[data-weather="clouds-night"] .text-muted {
+    color: rgba(255,255,255,0.7) !important;
+}

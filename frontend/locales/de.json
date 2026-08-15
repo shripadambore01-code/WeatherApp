@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "Atmos",
+    "tagline": "Erweiterte Wettervorhersage mit Echtzeitdaten"
+  },
+  "search": {
+    "placeholder": "Stadt suchen...",
+    "voice": "Sprachsuche",
+    "noResults": "Keine Ergebnisse gefunden"
+  },
+  "weather": {
+    "temperature": "Temperatur",
+    "feelsLike": "Gefühlt",
+    "humidity": "Luftfeuchtigkeit",
+    "wind": "Wind",
+    "pressure": "Druck",
+    "visibility": "Sichtweite",
+    "uvIndex": "UV-Index",
+    "sunrise": "Sonnenaufgang",
+    "sunset": "Sonnenuntergang",
+    "dewPoint": "Taupunkt"
+  },
+  "forecast": {
+    "hourly": "Stündliche Vorhersage",
+    "daily": "Tägliche Vorhersage",
+    "today": "Heute",
+    "tomorrow": "Morgen"
+  },
+  "aqi": {
+    "title": "Luftqualitätsindex",
+    "good": "Gut",
+    "moderate": "Mäßig",
+    "unhealthySensitive": "Ungesund für empfindliche Gruppen",
+    "unhealthy": "Ungesund",
+    "veryUnhealthy": "Sehr ungesund",
+    "hazardous": "Gefährlich"
+  },
+  "uv": {
+    "title": "UV-Index",
+    "low": "Niedrig",
+    "moderate": "Mäßig",
+    "high": "Hoch",
+    "veryHigh": "Sehr hoch",
+    "extreme": "Extrem",
+    "protection": {
+      "none": "Kein Schutz erforderlich.",
+      "some": "Schutz erforderlich. Sonnenbrille und Sonnencreme verwenden.",
+      "high": "Zusätzlicher Schutz erforderlich. Sonne am Mittag meiden."
+    }
+  },
+  "favorites": {
+    "title": "Favoriten",
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "empty": "Noch keine Favoriten"
+  },
+  "history": {
+    "title": "Suchverlauf",
+    "clear": "Verlauf löschen",
+    "empty": "Kein Suchverlauf"
+  },
+  "settings": {
+    "theme": "Thema",
+    "units": "Einheiten",
+    "language": "Sprache",
+    "celsius": "Celsius",
+    "fahrenheit": "Fahrenheit"
+  },
+  "errors": {
+    "cityNotFound": "Stadt nicht gefunden.",
+    "networkError": "Netzwerkfehler aufgetreten.",
+    "timeout": "Zeitüberschreitung der Anforderung.",
+    "geolocationDenied": "Zugriff auf Standort verweigert.",
+    "generic": "Ein Fehler ist aufgetreten."
+  },
+  "alerts": {
+    "highWind": "Starkwindwarnung",
+    "extremeHeat": "Extreme Hitzewarnung",
+    "extremeCold": "Extreme Kältewarnung",
+    "poorAqi": "Warnung vor schlechter Luftqualität",
+    "highUv": "Warnung vor hohem UV"
+  },
+  "map": {
+    "title": "Wetterkarte",
+    "layers": {
+      "precipitation": "Niederschlag",
+      "clouds": "Wolken",
+      "temperature": "Temperatur",
+      "wind": "Wind"
+    }
+  },
+  "compare": {
+    "title": "Wetter vergleichen",
+    "select": "Stadt zum Vergleichen auswählen",
+    "vs": "vs"
+  },
+  "loading": {
+    "text": "Laden...",
+    "refreshing": "Aktualisieren..."
+  },
+  "time": {
+    "justNow": "Gerade eben",
+    "minutesAgo": "vor einigen Minuten",
+    "hoursAgo": "vor einigen Stunden"
+  }
+}
