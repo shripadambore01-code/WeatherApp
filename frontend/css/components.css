@@ -121,10 +121,10 @@
     justify-content: center;
 }
 
-.hero-icon-frame img, #hero-icon-container img, .condition-icon-hero {
-    width: 96px;
-    height: 96px;
-    object-fit: contain;
+.hero-icon-frame svg, #hero-icon-container svg {
+    width: 88px;
+    height: 88px;
+    display: block;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
 }
 
@@ -504,6 +504,21 @@
     color: var(--color-ink-secondary);
 }
 
+.hourly-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hourly-icon svg {
+    width: 28px;
+    height: 28px;
+    display: block;
+}
+
 .hourly-temp {
     font-family: var(--font-display);
     font-size: 1.05rem;
@@ -548,6 +563,21 @@
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--color-ink);
+}
+
+.daily-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.daily-icon svg {
+    width: 32px;
+    height: 32px;
+    display: block;
 }
 
 .daily-desc {

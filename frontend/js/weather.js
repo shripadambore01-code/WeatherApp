@@ -1,16 +1,10 @@
 /**
  * Atmos Weather — Current Weather Display
- * Updates the hero section with current weather data from Open-Meteo
+ * Updates the hero section using inline Vector SVG icons for 100% reliability.
  */
 
-import { formatTemp, formatTempFull, formatWind, getWindDirection, formatTime, getWeatherDescription, getWeatherIcon, getWeatherCondition } from './utils.js';
+import { formatTemp, formatTempFull, formatWind, getWindDirection, formatTime, getWeatherDescription, getWeatherSvgIcon, getWeatherCondition } from './utils.js';
 
-/**
- * Updates all hero section elements with current weather data
- * @param {Object} data - Full Open-Meteo API response (contains current, daily, hourly, etc.)
- * @param {Object} cityInfo - City metadata { name, country, admin1, timezone }
- * @param {string} unit - 'celsius' or 'fahrenheit'
- */
 export function updateCurrentWeather(data, cityInfo, unit = 'celsius') {
     if (!data || !data.current) return;
 
@@ -82,25 +76,13 @@ export function updateCurrentWeather(data, cityInfo, unit = 'celsius') {
         if (maxEl) maxEl.textContent = `Max: ${formatTemp(maxVal, unit)}`;
     }
 
-    // Weather icon
+    // Hero Weather Icon (Clean Inline Vector SVG)
     const iconContainer = document.getElementById('hero-icon-container');
     if (iconContainer) {
-        const iconName = getWeatherIcon(current.weather_code, isDay);
-        const desc = getWeatherDescription(current.weather_code);
-        iconContainer.innerHTML = `
-            <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
-                 alt="${desc}"
-                 class="condition-icon-hero"
-                 width="96" height="96"
-                 onerror="this.onerror=null; this.src='https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg';" />
-        `;
+        iconContainer.innerHTML = getWeatherSvgIcon(current.weather_code, isDay, 88);
     }
 }
 
-/**
- * Sets the atmospheric background based on weather condition
- * @param {string} condition - Weather condition category from getWeatherCondition()
- */
 export function setWeatherBackground(condition) {
     document.body.setAttribute('data-weather', condition);
 }

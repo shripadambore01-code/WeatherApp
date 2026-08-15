@@ -1,16 +1,10 @@
 /**
  * Atmos Weather — Forecast Display
- * Renders daily and hourly forecast from Open-Meteo data
+ * Renders daily and hourly forecast using inline Vector SVG icons for 100% reliability.
  */
 
-import { formatTemp, formatDate, formatHour, getWeatherDescription, getWeatherIcon } from './utils.js';
+import { formatTemp, formatDate, formatHour, getWeatherDescription, getWeatherSvgIcon } from './utils.js';
 
-/**
- * Update the 7-day daily forecast section
- * @param {Object} daily - Open-Meteo daily data object
- * @param {Object} units - Open-Meteo daily_units object
- * @param {string} unit - 'celsius' or 'fahrenheit'
- */
 export function updateDailyForecast(daily, units, unit = 'celsius') {
     const container = document.getElementById('daily-container');
     if (!container || !daily || !daily.time) return;
@@ -21,21 +15,15 @@ export function updateDailyForecast(daily, units, unit = 'celsius') {
         const high = daily.temperature_2m_max?.[i];
         const low = daily.temperature_2m_min?.[i];
         const code = daily.weather_code?.[i] ?? 0;
-        const precipProb = daily.precipitation_probability_max?.[i] ?? 0;
-
-        const iconName = getWeatherIcon(code, true);
         const description = getWeatherDescription(code);
+        const svgIcon = getWeatherSvgIcon(code, true, 32);
 
         const row = document.createElement('div');
         row.className = 'daily-row';
         row.style.animationDelay = `${i * 50}ms`;
         row.innerHTML = `
             <div class="daily-day">${formatDate(date, 'short')}</div>
-            <div class="daily-icon">
-                <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
-                     alt="${description}" width="32" height="32" loading="lazy"
-                     onerror="this.onerror=null; this.src='https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg';" />
-            </div>
+            <div class="daily-icon">${svgIcon}</div>
             <div class="daily-desc">${description}</div>
             <div class="daily-temps">
                 <span class="temp-low">${formatTemp(low, unit)}</span>
@@ -52,19 +40,12 @@ export function updateDailyForecast(daily, units, unit = 'celsius') {
     });
 }
 
-/**
- * Update the 24-hour hourly forecast section
- * @param {Object} hourly - Open-Meteo hourly data object
- * @param {Object} units - Open-Meteo hourly_units object
- * @param {string} unit - 'celsius' or 'fahrenheit'
- */
 export function updateHourlyForecast(hourly, units, unit = 'celsius') {
     const container = document.getElementById('hourly-container');
     if (!container || !hourly || !hourly.time) return;
 
     container.innerHTML = '';
 
-    // Find the current hour index
     const now = new Date();
     let startIdx = 0;
     for (let i = 0; i < hourly.time.length; i++) {
@@ -74,7 +55,6 @@ export function updateHourlyForecast(hourly, units, unit = 'celsius') {
         }
     }
 
-    // Show next 24 hours
     const endIdx = Math.min(startIdx + 24, hourly.time.length);
 
     for (let i = startIdx; i < endIdx; i++) {
@@ -83,8 +63,7 @@ export function updateHourlyForecast(hourly, units, unit = 'celsius') {
         const code = hourly.weather_code?.[i] ?? 0;
         const isDay = hourly.is_day?.[i] === 1;
         const precipProb = hourly.precipitation_probability?.[i] ?? 0;
-
-        const iconName = getWeatherIcon(code, isDay);
+        const svgIcon = getWeatherSvgIcon(code, isDay, 28);
         const delay = (i - startIdx) * 30;
 
         const card = document.createElement('div');
@@ -92,17 +71,13 @@ export function updateHourlyForecast(hourly, units, unit = 'celsius') {
         card.style.animationDelay = `${delay}ms`;
         card.innerHTML = `
             <div class="hourly-time">${formatHour(time)}</div>
-            <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
-                 alt="${getWeatherDescription(code)}" class="hourly-icon" width="32" height="32"
-                 loading="lazy" onerror="this.onerror=null; this.src='https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg';" />
+            <div class="hourly-icon">${svgIcon}</div>
             <div class="hourly-temp">${formatTemp(temp, unit)}</div>
             ${precipProb > 0 ? `<div class="hourly-precip">${precipProb}%</div>` : ''}
         `;
         container.appendChild(card);
     }
 }
-
-/* ─── Helpers for temperature bar visualization ─── */
 
 function tempBarPosition(low, allMins, allMaxes) {
     if (!allMins || !allMaxes) return 0;
