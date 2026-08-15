@@ -1,0 +1,71 @@
+/* c:\Users\shrip\OneDrive\Desktop\WeatherApp\frontend\css\themes.css */
+
+/* Light Theme (Default) */
+:root, [data-theme='light'] {
+    --bg-primary: hsl(var(--h-bg-light), var(--s-bg-light), var(--l-bg-light));
+    --bg-secondary: hsl(var(--h-sfc-light), var(--s-sfc-light), var(--l-sfc-light));
+    --bg-tertiary: hsl(var(--h-sfc-light), var(--s-sfc-light), calc(var(--l-sfc-light) - 5%));
+    
+    --text-primary: hsl(var(--h-txt-light), var(--s-txt-light), var(--l-txt-light));
+    --text-muted: hsl(var(--h-mut-light), var(--s-mut-light), var(--l-mut-light));
+    --text-inverse: hsl(var(--h-bg-light), var(--s-bg-light), var(--l-bg-light));
+    
+    --accent-primary: hsl(var(--h-acc-light), var(--s-acc-light), var(--l-acc-light));
+    --accent-hover: hsl(var(--h-acc-light), var(--s-acc-light), calc(var(--l-acc-light) - 10%));
+    
+    --border-color: rgba(0,0,0,0.1);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    
+    /* UV Index Variables for stroke dash calculation if needed */
+    --uv-low: var(--color-good);
+    --uv-moderate: var(--color-moderate);
+    --uv-high: var(--color-usg);
+    --uv-very-high: var(--color-unhealthy);
+    --uv-extreme: var(--color-hazardous);
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+    --bg-primary: hsl(var(--h-bg-dark), var(--s-bg-dark), var(--l-bg-dark));
+    --bg-secondary: hsl(var(--h-sfc-dark), var(--s-sfc-dark), var(--l-sfc-dark));
+    --bg-tertiary: hsl(var(--h-sfc-dark), var(--s-sfc-dark), calc(var(--l-sfc-dark) + 5%));
+    
+    --text-primary: hsl(var(--h-txt-dark), var(--s-txt-dark), var(--l-txt-dark));
+    --text-muted: hsl(var(--h-mut-dark), var(--s-mut-dark), var(--l-mut-dark));
+    --text-inverse: hsl(var(--h-bg-dark), var(--s-bg-dark), var(--l-bg-dark));
+    
+    --accent-primary: hsl(var(--h-acc-dark), var(--s-acc-dark), var(--l-acc-dark));
+    --accent-hover: hsl(var(--h-acc-dark), var(--s-acc-dark), calc(var(--l-acc-dark) + 10%));
+    
+    --border-color: rgba(255,255,255,0.1);
+    --glass-bg: rgba(0, 0, 0, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Auto-detect OS Preference (Fallback if JS doesn't set data-theme) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg-primary: hsl(var(--h-bg-dark), var(--s-bg-dark), var(--l-bg-dark));
+        --bg-secondary: hsl(var(--h-sfc-dark), var(--s-sfc-dark), var(--l-sfc-dark));
+        --bg-tertiary: hsl(var(--h-sfc-dark), var(--s-sfc-dark), calc(var(--l-sfc-dark) + 5%));
+        
+        --text-primary: hsl(var(--h-txt-dark), var(--s-txt-dark), var(--l-txt-dark));
+        --text-muted: hsl(var(--h-mut-dark), var(--s-mut-dark), var(--l-mut-dark));
+        --text-inverse: hsl(var(--h-bg-dark), var(--s-bg-dark), var(--l-bg-dark));
+        
+        --accent-primary: hsl(var(--h-acc-dark), var(--s-acc-dark), var(--l-acc-dark));
+        --accent-hover: hsl(var(--h-acc-dark), var(--s-acc-dark), calc(var(--l-acc-dark) + 10%));
+        
+        --border-color: rgba(255,255,255,0.1);
+        --glass-bg: rgba(0, 0, 0, 0.5);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* SVG icons theme matching */
+[data-theme='light'] .sun-icon { display: none; }
+[data-theme='light'] .moon-icon { display: block; }
+
+[data-theme='dark'] .sun-icon { display: block; }
+[data-theme='dark'] .moon-icon { display: none; }

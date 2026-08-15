@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "Atmos",
+    "tagline": "Advanced weather forecasting with real-time data"
+  },
+  "search": {
+    "placeholder": "Search city...",
+    "voice": "Voice search",
+    "noResults": "No results found"
+  },
+  "weather": {
+    "temperature": "Temperature",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "pressure": "Pressure",
+    "visibility": "Visibility",
+    "uvIndex": "UV Index",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "dewPoint": "Dew Point"
+  },
+  "forecast": {
+    "hourly": "Hourly Forecast",
+    "daily": "Daily Forecast",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
+  },
+  "aqi": {
+    "title": "Air Quality Index",
+    "good": "Good",
+    "moderate": "Moderate",
+    "unhealthySensitive": "Unhealthy for Sensitive Groups",
+    "unhealthy": "Unhealthy",
+    "veryUnhealthy": "Very Unhealthy",
+    "hazardous": "Hazardous"
+  },
+  "uv": {
+    "title": "UV Index",
+    "low": "Low",
+    "moderate": "Moderate",
+    "high": "High",
+    "veryHigh": "Very High",
+    "extreme": "Extreme",
+    "protection": {
+      "none": "No protection needed.",
+      "some": "Protection needed. Wear sunglasses and use sunscreen.",
+      "high": "Extra protection needed. Avoid sun during midday hours."
+    }
+  },
+  "favorites": {
+    "title": "Favorites",
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "empty": "No favorites yet"
+  },
+  "history": {
+    "title": "Search History",
+    "clear": "Clear history",
+    "empty": "No search history"
+  },
+  "settings": {
+    "theme": "Theme",
+    "units": "Units",
+    "language": "Language",
+    "celsius": "Celsius",
+    "fahrenheit": "Fahrenheit"
+  },
+  "errors": {
+    "cityNotFound": "City not found.",
+    "networkError": "Network error occurred.",
+    "timeout": "Request timed out.",
+    "geolocationDenied": "Geolocation access denied.",
+    "generic": "An error occurred."
+  },
+  "alerts": {
+    "highWind": "High Wind Warning",
+    "extremeHeat": "Extreme Heat Warning",
+    "extremeCold": "Extreme Cold Warning",
+    "poorAqi": "Poor Air Quality Alert",
+    "highUv": "High UV Alert"
+  },
+  "map": {
+    "title": "Weather Map",
+    "layers": {
+      "precipitation": "Precipitation",
+      "clouds": "Clouds",
+      "temperature": "Temperature",
+      "wind": "Wind"
+    }
+  },
+  "compare": {
+    "title": "Compare Weather",
+    "select": "Select city to compare",
+    "vs": "vs"
+  },
+  "loading": {
+    "text": "Loading...",
+    "refreshing": "Refreshing..."
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "minutes ago",
+    "hoursAgo": "hours ago"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "app": {
+    "name": "Atmos",
+    "tagline": "Pronóstico del tiempo avanzado con datos en tiempo real"
+  },
+  "search": {
+    "placeholder": "Buscar ciudad...",
+    "voice": "Búsqueda por voz",
+    "noResults": "No se encontraron resultados"
+  },
+  "weather": {
+    "temperature": "Temperatura",
+    "feelsLike": "Sensación térmica",
+    "humidity": "Humedad",
+    "wind": "Viento",
+    "pressure": "Presión",
+    "visibility": "Visibilidad",
+    "uvIndex": "Índice UV",
+    "sunrise": "Amanecer",
+    "sunset": "Atardecer",
+    "dewPoint": "Punto de rocío"
+  },
+  "forecast": {
+    "hourly": "Pronóstico por hora",
+    "daily": "Pronóstico diario",
+    "today": "Hoy",
+    "tomorrow": "Mañana"
+  },
+  "aqi": {
+    "title": "Índice de calidad del aire",
+    "good": "Bueno",
+    "moderate": "Moderado",
+    "unhealthySensitive": "Dañino para grupos sensibles",
+    "unhealthy": "Dañino",
+    "veryUnhealthy": "Muy dañino",
+    "hazardous": "Peligroso"
+  },
+  "uv": {
+    "title": "Índice UV",
+    "low": "Bajo",
+    "moderate": "Moderado",
+    "high": "Alto",
+    "veryHigh": "Muy alto",
+    "extreme": "Extremo",
+    "protection": {
+      "none": "No requiere protección.",
+      "some": "Requiere protección. Use gafas de sol y protector solar.",
+      "high": "Requiere protección adicional. Evite el sol al mediodía."
+    }
+  },
+  "favorites": {
+    "title": "Favoritos",
+    "add": "Añadir a favoritos",
+    "remove": "Eliminar de favoritos",
+    "empty": "No hay favoritos"
+  },
+  "history": {
+    "title": "Historial de búsqueda",
+    "clear": "Borrar historial",
+    "empty": "No hay historial"
+  },
+  "settings": {
+    "theme": "Tema",
+    "units": "Unidades",
+    "language": "Idioma",
+    "celsius": "Celsius",
+    "fahrenheit": "Fahrenheit"
+  },
+  "errors": {
+    "cityNotFound": "Ciudad no encontrada.",
+    "networkError": "Error de red.",
+    "timeout": "Tiempo de espera agotado.",
+    "geolocationDenied": "Acceso a la ubicación denegado.",
+    "generic": "Ocurrió un error."
+  },
+  "alerts": {
+    "highWind": "Aviso por fuertes vientos",
+    "extremeHeat": "Aviso por calor extremo",
+    "extremeCold": "Aviso por frío extremo",
+    "poorAqi": "Alerta por mala calidad del aire",
+    "highUv": "Alerta por UV alto"
+  },
+  "map": {
+    "title": "Mapa del tiempo",
+    "layers": {
+      "precipitation": "Precipitación",
+      "clouds": "Nubes",
+      "temperature": "Temperatura",
+      "wind": "Viento"
+    }
+  },
+  "compare": {
+    "title": "Comparar tiempo",
+    "select": "Seleccionar ciudad",
+    "vs": "vs"
+  },
+  "loading": {
+    "text": "Cargando...",
+    "refreshing": "Actualizando..."
+  },
+  "time": {
+    "justNow": "Justo ahora",
+    "minutesAgo": "hace unos minutos",
+    "hoursAgo": "hace unas horas"
+  }
+}
