@@ -138,3 +138,26 @@ async def test_intelligence_api_endpoints(client: AsyncClient):
     assert resp_ai.status_code == 200
     assert resp_ai.json()["intent"] == "activity_best_time"
     assert resp_ai.json()["activity"] == "cycling"
+
+
+@pytest.mark.asyncio
+async def test_ai_tomorrow_query(client: AsyncClient):
+    req_payload = {
+        "question": "will it rain tomorrow in Alandi, 16 august?",
+        "city_name": "Alandi",
+        "current_data": {"temperature_2m": 22.0, "precipitation_probability": 0.0},
+        "daily_data": {
+            "time": ["2026-08-15", "2026-08-16", "2026-08-17"],
+            "weather_code": [1, 61, 2],
+            "temperature_2m_max": [28.0, 27.0, 27.0],
+            "temperature_2m_min": [22.0, 22.0, 23.0],
+            "precipitation_probability_max": [10.0, 80.0, 20.0],
+            "rain_sum": [0.0, 4.5, 0.2]
+        }
+    }
+    resp = await client.post("/api/ai/ask", json=req_payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "rain" in data["answer"].lower()
+    assert "80%" in data["answer"] or "alandi" in data["answer"].lower()
+

@@ -33,7 +33,7 @@ class ParseQueryRequest(BaseModel):
 async def handle_ai_ask(req: AskAIRequest):
     """
     Processes natural questions using Gemini API when available,
-    grounded with verified telemetry, falling back to deterministic intelligence tools.
+    grounded with verified multi-horizon telemetry, falling back to deterministic intelligence tools.
     """
     # 1. First run deterministic tool answer for baseline precision
     fallback_response = ask_atmos_ai(
@@ -52,23 +52,44 @@ async def handle_ai_ask(req: AskAIRequest):
             "ai_status": "API key not configured — using deterministic rule engine."
         }
 
-    # 2. Call Gemini model with strict grounding prompt
+    # 2. Extract multi-day daily context for Gemini
+    daily_summary_lines = []
+    if req.daily_data and "time" in req.daily_data:
+        times = req.daily_data.get("time", [])
+        t_maxs = req.daily_data.get("temperature_2m_max", [])
+        t_mins = req.daily_data.get("temperature_2m_min", [])
+        r_probs = req.daily_data.get("precipitation_probability_max", [])
+        codes = req.daily_data.get("weather_code", [])
+
+        for i in range(min(len(times), 7)):
+            day_label = "Today" if i == 0 else "Tomorrow" if i == 1 else times[i]
+            max_t = t_maxs[i] if i < len(t_maxs) else "N/A"
+            min_t = t_mins[i] if i < len(t_mins) else "N/A"
+            r_p = r_probs[i] if i < len(r_probs) else 0
+            code = codes[i] if i < len(codes) else 0
+            daily_summary_lines.append(f"- {day_label} ({times[i]}): High {max_t}°C, Low {min_t}°C, Rain Chance {r_p}%, WMO Code {code}")
+
+    daily_context_str = "\n".join(daily_summary_lines) if daily_summary_lines else "No multi-day data."
+
     verified_context = (
-        f"Verified Weather in {req.city_name}:\n"
+        f"Verified Meteorological Telemetry for {req.city_name}:\n"
+        f"CURRENT CONDITIONS:\n"
         f"- Current Temp: {fallback_response['verified_metrics'].get('temperature')}\n"
         f"- Feels Like: {fallback_response['verified_metrics'].get('feels_like')}\n"
-        f"- Rain Probability: {fallback_response['verified_metrics'].get('rain_probability')}\n"
+        f"- Rain Probability (Current): {fallback_response['verified_metrics'].get('rain_probability')}\n"
         f"- Wind Speed: {fallback_response['verified_metrics'].get('wind')}\n"
         f"- UV Index: {fallback_response['verified_metrics'].get('uv')}\n"
-        f"- AQI: {fallback_response['verified_metrics'].get('aqi')}\n"
-        f"- Deterministic Analysis: {fallback_response['answer']}\n"
+        f"- AQI: {fallback_response['verified_metrics'].get('aqi')}\n\n"
+        f"7-DAY FORECAST BREAKDOWN:\n{daily_context_str}\n\n"
+        f"CALCULATED PRELIMINARY INSIGHT: {fallback_response['answer']}"
     )
 
     system_prompt = (
-        "You are Atmos AI (SkyMind), a hyper-accurate, concise meteorological intelligence assistant. "
-        "Your answers must be helpful, direct, practical, and strictly adhere to the provided verified weather context. "
-        "NEVER contradict or invent temperatures, precipitation percentages, or conditions outside the context. "
-        "Keep answers under 3 short sentences with actionable advice."
+        "You are Atmos AI, a precise, intelligent meteorological assistant. "
+        "Answer the user's question directly, conversationally, and accurately based ONLY on the verified weather context provided. "
+        "If the user asks about tomorrow, look at the Tomorrow forecast row (High/Low temp, Rain Chance) and give a helpful answer. "
+        "If the user asks about today, rain, clothes, running, or outdoor activities, give realistic, grounded advice. "
+        "Keep your answer to 2-3 natural sentences."
     )
 
     try:
@@ -83,7 +104,7 @@ async def handle_ai_ask(req: AskAIRequest):
             ],
             "generationConfig": {
                 "temperature": 0.2,
-                "maxOutputTokens": 150
+                "maxOutputTokens": 200
             }
         }
 

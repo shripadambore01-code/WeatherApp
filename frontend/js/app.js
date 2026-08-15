@@ -684,7 +684,7 @@ async function submitAIQuestion(question) {
     historyEl.appendChild(botMsg);
     historyEl.scrollTop = historyEl.scrollHeight;
 
-    const response = await askAtmosAI(question, state.currentCity.name, state.weatherData.current, state.hourlyNormalized);
+    const response = await askAtmosAI(question, state.currentCity.name, state.weatherData.current, state.hourlyNormalized, state.weatherData.daily);
     botMsg.innerHTML = `
         <div>${response.answer}</div>
         <div style="font-size: 0.7rem; color: var(--color-ink-tertiary); margin-top: 0.4rem;">
