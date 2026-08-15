@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="Atmos — Next-Gen Personal Weather Intelligence System powered by real-time meteorological telemetry and AI.">
+    <meta name="description" content="Atmos — High-precision atmospheric weather experience powered by Open-Meteo and AI intelligence.">
     <meta name="theme-color" content="#faf8f5">
-    <title>Atmos — Personal Weather Intelligence</title>
+    <title>Atmos — Weather Experience</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -51,7 +51,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--color-ink-tertiary);">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
                     </svg>
-                    <input type="text" id="search-input" class="search-input-field" data-i18n="search.placeholder" placeholder="Search state, city (Odisha, Maharashtra, Delhi...)" autocomplete="off">
+                    <input type="text" id="search-input" class="search-input-field" data-i18n="search.placeholder" placeholder="Search city, state (e.g. Odisha, Pune, Delhi, Mumbai...)" autocomplete="off">
                     <button class="tactile-btn-icon" id="voice-btn" aria-label="Voice Search" title="Search with Voice" style="width: 26px; height: 26px; border: none; box-shadow: none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
@@ -110,13 +110,10 @@
         <div id="shift-banner-container" class="hidden"></div>
         <div id="alerts-section" class="hidden"></div>
 
-        <!-- "What Changed in Forecast?" Snapshot Delta Card -->
-        <div id="what-changed-container" class="what-changed-card hidden"></div>
-
         <!-- Master Content Grid -->
         <main class="bento-container" id="weather-content">
             
-            <!-- LEFT COLUMN: Primary Intelligence & Daily Rhythm -->
+            <!-- LEFT COLUMN: Hero, Hourly, 7-Day & Charts -->
             <div class="bento-left-col">
                 
                 <!-- 1. Tactile Hero Card -->
@@ -131,9 +128,6 @@
                             <div class="updated-subtext" id="last-updated">Updated Just Now</div>
                         </div>
                         <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <button class="tactile-btn" id="what-should-i-do-btn" data-i18n="btn.what_to_do" style="background: var(--color-ink); color: #ffffff; border-color: var(--color-ink); box-shadow: 0 3px 0 0 rgba(0,0,0,0.3);">
-                                What Should I Do?
-                            </button>
                             <button class="tactile-btn-icon" id="favorite-btn" aria-label="Favorite" title="Save to Favorites">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -165,104 +159,7 @@
                     </div>
                 </section>
 
-                <!-- 2. Universal Weather Score 2.0 Card -->
-                <section class="bubble-card" id="weather-score-card">
-                    <div class="card-header-bar">
-                        <div class="card-heading">
-                            <span>⭐</span>
-                            <span data-i18n="section.score">Universal Comfort Score 2.0</span>
-                        </div>
-                        <div class="profile-pills-wrap" id="score-profiles">
-                            <button class="profile-chip selected" data-profile="general" data-i18n="profile.general">General</button>
-                            <button class="profile-chip" data-profile="running" data-i18n="profile.running">Running</button>
-                            <button class="profile-chip" data-profile="cycling" data-i18n="profile.cycling">Cycling</button>
-                            <button class="profile-chip" data-profile="beach" data-i18n="profile.beach">Beach</button>
-                            <button class="profile-chip" data-profile="photography" data-i18n="profile.photo">Photo</button>
-                            <button class="profile-chip" data-profile="stargazing" data-i18n="profile.stargazing">Stargazing</button>
-                        </div>
-                    </div>
-
-                    <div class="score-display-flex">
-                        <div class="score-number-box">
-                            <span class="score-val tabular-nums" id="weather-score-num">88</span>
-                            <span class="score-denom">/100</span>
-                        </div>
-                        <div>
-                            <div class="score-verdict" id="weather-score-verdict">Excellent</div>
-                            <div class="score-summary" id="weather-score-summary">Ideal meteorological conditions with optimal thermal balance.</div>
-                        </div>
-                    </div>
-                    <div class="score-reasons-list" id="weather-score-reasons"></div>
-                </section>
-
-                <!-- 3. Signature Feature: Best Time to Do Anything -->
-                <section class="bubble-card" id="best-time-section">
-                    <div class="card-header-bar">
-                        <div class="card-heading">
-                            <span>⏱️</span>
-                            <span data-i18n="section.best_time">Best Time Today & Activity Engine</span>
-                        </div>
-                        <button class="tactile-btn" id="custom-activity-modal-btn" data-i18n="btn.custom_act" style="font-size: 0.75rem; padding: 3px 9px;">
-                            + Custom Builder
-                        </button>
-                    </div>
-
-                    <!-- Activity Selector Strip -->
-                    <div class="activity-chips-strip" id="activity-chips">
-                        <button class="activity-pill selected" data-act="running" data-i18n="act.running">🏃 Running</button>
-                        <button class="activity-pill" data-act="walking" data-i18n="act.walking">🚶 Walking</button>
-                        <button class="activity-pill" data-act="cycling" data-i18n="act.cycling">🚴 Cycling</button>
-                        <button class="activity-pill" data-act="workout" data-i18n="act.workout">💪 Workout</button>
-                        <button class="activity-pill" data-act="photography" data-i18n="act.photo">📸 Photo</button>
-                        <button class="activity-pill" data-act="picnic" data-i18n="act.picnic">🧺 Picnic</button>
-                        <button class="activity-pill" data-act="beach" data-i18n="act.beach">🏖️ Beach</button>
-                        <button class="activity-pill" data-act="hiking" data-i18n="act.hiking">🥾 Hiking</button>
-                        <button class="activity-pill" data-act="stargazing" data-i18n="act.stargazing">🔭 Stargazing</button>
-                        <button class="activity-pill" data-act="outdoor_study" data-i18n="act.study">📚 Study</button>
-                    </div>
-
-                    <!-- Best vs Avoid Windows -->
-                    <div class="duo-grid" style="margin: 1rem 0;">
-                        <div class="window-card best-win">
-                            <div class="window-badge best" data-i18n="label.best_window">BEST TIME TODAY</div>
-                            <div class="window-time" id="best-time-slot">07:00 AM – 09:00 AM</div>
-                            <div class="window-score" id="best-time-score">94/100 · Excellent</div>
-                            <ul class="window-reasons" id="best-time-reasons">
-                                <li>Crisp thermal index (18°C)</li>
-                                <li>0% precipitation risk</li>
-                            </ul>
-                        </div>
-
-                        <div class="window-card avoid-win">
-                            <div class="window-badge avoid" data-i18n="label.avoid_window">AVOID WINDOW</div>
-                            <div class="window-time" id="avoid-time-slot">02:00 PM – 04:00 PM</div>
-                            <div class="window-score" id="avoid-time-score">52/100 · Sub-optimal</div>
-                            <ul class="window-reasons" id="avoid-time-reasons">
-                                <li>High UV index exposure (7.4)</li>
-                                <li>Wind gusts reaching 32 km/h</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- 24h Suitability Curve Graph -->
-                    <div class="card-heading" style="font-size: 0.725rem; margin-top: 0.75rem;" data-i18n="label.suitability">24-Hour Activity Suitability Curve</div>
-                    <div class="activity-hourly-bars" id="activity-hourly-bars"></div>
-                </section>
-
-                <!-- 4. Smart Decision Cards Grid -->
-                <section class="bubble-card" id="decisions-section">
-                    <div class="card-header-bar">
-                        <div class="card-heading">
-                            <span>🎯</span>
-                            <span data-i18n="section.decisions">Smart Decision Cards</span>
-                        </div>
-                    </div>
-                    <div class="decision-cards-grid" id="decision-cards-grid">
-                        <!-- Populated by decisionEngine.js -->
-                    </div>
-                </section>
-
-                <!-- 5. 24-Hour Hourly Ribbon -->
+                <!-- 2. 24-Hour Hourly Progression -->
                 <section class="bubble-card" id="hourly-section">
                     <div class="card-header-bar">
                         <div class="card-heading">
@@ -273,7 +170,7 @@
                     <div class="hourly-scroll-strip" id="hourly-container"></div>
                 </section>
 
-                <!-- 6. 7-Day Outlook -->
+                <!-- 3. 7-Day Outlook -->
                 <section class="bubble-card" id="daily-section">
                     <div class="card-header-bar">
                         <div class="card-heading">
@@ -283,12 +180,8 @@
                     </div>
                     <div class="daily-rows-wrap" id="daily-container"></div>
                 </section>
-            </div>
 
-            <!-- RIGHT COLUMN: Diagnostics, Specialized Modes & Visual Charts -->
-            <div class="bento-right-col">
-                
-                <!-- Temperature & Humidity Spectrum Chart -->
+                <!-- 4. Thermal Rhythm & Humidity Spectrum Chart -->
                 <section class="bubble-card" id="charts-section">
                     <div class="card-header-bar">
                         <div class="card-heading">
@@ -298,20 +191,11 @@
                     </div>
                     <div id="temp-chart" style="min-height: 240px;"></div>
                 </section>
+            </div>
 
-                <!-- Intelligent Weather Brief -->
-                <section class="bubble-card briefing-card" id="weather-brief-section">
-                    <div class="card-header-bar" style="margin-bottom: 0.5rem;">
-                        <div class="card-heading" style="color: var(--accent-amber-dark);">
-                            <span>📰</span>
-                            <span>Your Weather Brief</span>
-                        </div>
-                        <span class="station-pill" id="brief-tag">Morning Brief</span>
-                    </div>
-                    <h3 class="brief-title" id="brief-headline">London — 18°C</h3>
-                    <p class="brief-text" id="brief-summary">Mild atmospheric conditions across the region. Perfect for outdoor workouts in the early morning.</p>
-                </section>
-
+            <!-- RIGHT COLUMN: Air Quality, UV, Sensor Pods & Map -->
+            <div class="bento-right-col">
+                
                 <!-- Air Quality & UV Duo Grid -->
                 <div class="duo-grid">
                     <!-- Air Quality -->
@@ -355,7 +239,7 @@
                     <div class="sensor-box">
                         <div class="sensor-top"><span data-i18n="sensor.humidity">Humidity</span><span>💧</span></div>
                         <div class="sensor-val" id="hero-humidity">64%</div>
-                        <div class="sensor-note">Dew point 11°C</div>
+                        <div class="sensor-note">Dew point ~11°C</div>
                     </div>
 
                     <div class="sensor-box">
@@ -377,44 +261,8 @@
                     </div>
                 </div>
 
-                <!-- Specialized Modes: Stargazing & Photography -->
-                <section class="bubble-card" id="specialized-modes-card">
-                    <div class="card-header-bar">
-                        <div class="card-heading" data-i18n="section.specialized">Specialized Intelligence Modes</div>
-                    </div>
-                    <div class="duo-grid">
-                        <div class="sensor-box" id="stargazing-card" style="background: var(--color-paper-muted);">
-                            <div class="sensor-top"><span data-i18n="section.stargazing">Stargazing</span><span class="score-badge-mini" id="star-score-badge">85/100</span></div>
-                            <div class="sensor-val" style="font-size: 1rem;" id="star-window-txt">Best: 11 PM – 3 AM</div>
-                            <div class="sensor-note" id="star-reason-txt">Clear night sky with minimal light pollution interference.</div>
-                        </div>
-
-                        <div class="sensor-box" id="photo-card" style="background: var(--color-paper-muted);">
-                            <div class="sensor-top"><span data-i18n="section.photo">Photography</span><span class="score-badge-mini" id="photo-score-badge">92/100</span></div>
-                            <div class="sensor-val" style="font-size: 1rem;" id="photo-window-txt">Golden Hour: 7:35 PM</div>
-                            <div class="sensor-note" id="photo-note-txt">High dynamic range with warm low-angle sunlight.</div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Commute & Smart Packing Actions Row -->
-                <div class="duo-grid">
-                    <button class="tactile-btn" id="open-commute-modal-btn" data-i18n="btn.commute" style="padding: 0.85rem; width: 100%;">
-                        🚗 Commute Safety
-                    </button>
-                    <button class="tactile-btn" id="open-packing-modal-btn" data-i18n="btn.packing" style="padding: 0.85rem; width: 100%;">
-                        🧳 Smart Packing
-                    </button>
-                </div>
-
                 <!-- Interactive Leaflet Weather Map -->
-                <section class="bubble-card" id="map-section">
-                    <div class="card-header-bar">
-                        <div class="card-heading">
-                            <span>🗺️</span>
-                            <span>Radar & Precipitation Map</span>
-                        </div>
-                    </div>
+                <section class="bubble-card" id="map-section" style="padding: 0; overflow: hidden;">
                     <div class="map-frame" id="weather-map"></div>
                 </section>
             </div>
@@ -478,73 +326,6 @@
                     <input type="text" id="ai-user-input" class="search-input-field" placeholder="Ask about rain in Delhi, running time, clothing..." autocomplete="off">
                     <button class="tactile-btn" id="ai-submit-btn" style="background: var(--color-ink); color: #ffffff;">Send</button>
                 </div>
-            </div>
-        </div>
-
-        <!-- WHAT SHOULD I DO MODAL -->
-        <div class="modal-overlay hidden" id="recommendation-modal-overlay">
-            <div class="modal-dialog bubble-card" style="max-width: 540px;">
-                <div class="card-header-bar">
-                    <h3 class="card-heading" data-i18n="btn.what_to_do">What Should I Do Today?</h3>
-                    <button class="tactile-btn-icon" onclick="document.getElementById('recommendation-modal-overlay').classList.add('hidden')">&times;</button>
-                </div>
-                <div id="recommendation-modal-content"></div>
-            </div>
-        </div>
-
-        <!-- CUSTOM ACTIVITY BUILDER MODAL -->
-        <div class="modal-overlay hidden" id="custom-activity-modal-overlay">
-            <div class="modal-dialog bubble-card" style="max-width: 500px;">
-                <div class="card-header-bar">
-                    <h3 class="card-heading" data-i18n="btn.custom_act">Custom Activity Builder</h3>
-                    <button class="tactile-btn-icon" onclick="document.getElementById('custom-activity-modal-overlay').classList.add('hidden')">&times;</button>
-                </div>
-                <p style="font-size: 0.85rem; color: var(--color-ink-secondary); margin-bottom: 1rem;">
-                    Configure weather sensitivities to calculate the ideal hourly window for your custom activity.
-                </p>
-                <div>
-                    <label class="custom-label">Activity Name</label>
-                    <input type="text" id="custom-act-name" class="search-input-field" placeholder="e.g., College Commute, Drone Flying" value="College Commute" style="margin-bottom: 1rem;">
-
-                    <label class="custom-label">Rain Sensitivity (1 = Don't care, 5 = Critical)</label>
-                    <input type="range" min="1" max="5" value="5" class="custom-slider" id="custom-weight-rain">
-
-                    <label class="custom-label">Temperature Sensitivity</label>
-                    <input type="range" min="1" max="5" value="4" class="custom-slider" id="custom-weight-temp">
-
-                    <label class="custom-label">Wind Sensitivity</label>
-                    <input type="range" min="1" max="5" value="3" class="custom-slider" id="custom-weight-wind">
-
-                    <label class="custom-label">Air Quality (AQI) Sensitivity</label>
-                    <input type="range" min="1" max="5" value="3" class="custom-slider" id="custom-weight-aqi">
-
-                    <button class="tactile-btn" id="calculate-custom-act-btn" style="background: var(--color-ink); color: #fff; width: 100%; margin-top: 0.5rem;">
-                        Calculate Optimal Window
-                    </button>
-                    <div id="custom-act-result"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- COMMUTE MODAL -->
-        <div class="modal-overlay hidden" id="commute-modal-overlay">
-            <div class="modal-dialog bubble-card" style="max-width: 540px;">
-                <div class="card-header-bar">
-                    <h3 class="card-heading" data-i18n="btn.commute">Daily Commute Weather Safety</h3>
-                    <button class="tactile-btn-icon" onclick="document.getElementById('commute-modal-overlay').classList.add('hidden')">&times;</button>
-                </div>
-                <div id="commute-modal-body"></div>
-            </div>
-        </div>
-
-        <!-- SMART PACKING MODAL -->
-        <div class="modal-overlay hidden" id="packing-modal-overlay">
-            <div class="modal-dialog bubble-card" style="max-width: 540px;">
-                <div class="card-header-bar">
-                    <h3 class="card-heading" data-i18n="btn.packing">Smart Packing Assistant (7-Day Range)</h3>
-                    <button class="tactile-btn-icon" onclick="document.getElementById('packing-modal-overlay').classList.add('hidden')">&times;</button>
-                </div>
-                <div id="packing-modal-body"></div>
             </div>
         </div>
 
