@@ -72,16 +72,25 @@ export function updateCurrentWeather(data, cityInfo, unit = 'celsius') {
         if (sunsetEl) sunsetEl.textContent = formatTime(daily.sunset[0], data.timezone);
     }
 
+    // Min / Max Day Range
+    if (daily && daily.temperature_2m_min && daily.temperature_2m_max) {
+        const minEl = document.getElementById('hero-temp-min');
+        const maxEl = document.getElementById('hero-temp-max');
+        const minVal = daily.temperature_2m_min[0];
+        const maxVal = daily.temperature_2m_max[0];
+        if (minEl) minEl.textContent = `Min: ${formatTemp(minVal, unit)}`;
+        if (maxEl) maxEl.textContent = `Max: ${formatTemp(maxVal, unit)}`;
+    }
+
     // Weather icon
     const iconContainer = document.getElementById('hero-icon-container');
     if (iconContainer) {
         const iconName = getWeatherIcon(current.weather_code, isDay);
-        // Use inline SVG or image from Meteocons CDN
         iconContainer.innerHTML = `
             <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
                  alt="${getWeatherDescription(current.weather_code)}"
-                 class="hero-weather-icon"
-                 width="120" height="120"
+                 class="condition-icon-hero"
+                 width="110" height="110"
                  onerror="this.style.display='none'" />
         `;
     }

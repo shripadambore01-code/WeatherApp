@@ -1,91 +1,101 @@
-/* c:\Users\shrip\OneDrive\Desktop\WeatherApp\frontend\css\design-system.css */
+/* ==========================================================================
+   ATMOS WEATHER — DESIGN SYSTEM & TOKENS
+   Editorial, Anti-Slop Meteorological Interface
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-    /* Base Color Tokens (HSL) */
-    --h-bg-light: 210; --s-bg-light: 20%; --l-bg-light: 98%;
-    --h-txt-light: 220; --s-txt-light: 15%; --l-txt-light: 20%;
-    --h-acc-light: 200; --s-acc-light: 80%; --l-acc-light: 50%;
-    --h-sfc-light: 210; --s-sfc-light: 25%; --l-sfc-light: 95%;
-    --h-mut-light: 215; --s-mut-light: 15%; --l-mut-light: 65%;
+    /* Color Palette — Atmospheric Slate & Deep Obsidian */
+    --color-pure-white: #ffffff;
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-slate-950: #020617;
 
-    --h-bg-dark: 220; --s-bg-dark: 25%; --l-bg-dark: 10%;
-    --h-txt-dark: 210; --s-txt-dark: 20%; --l-txt-dark: 90%;
-    --h-acc-dark: 200; --s-acc-dark: 70%; --l-acc-dark: 60%;
-    --h-sfc-dark: 220; --s-sfc-dark: 20%; --l-sfc-dark: 15%;
-    --h-mut-dark: 215; --s-mut-dark: 15%; --l-mut-dark: 50%;
+    /* Weather Accents */
+    --accent-sky: #38bdf8;
+    --accent-sun: #fbbf24;
+    --accent-warm: #f97316;
+    --accent-rain: #60a5fa;
+    --accent-storm: #a855f7;
+    --accent-snow: #e0f2fe;
 
-    /* AQI & UV Colors */
-    --color-good: #22c55e;
-    --color-moderate: #eab308;
-    --color-usg: #f97316;
-    --color-unhealthy: #ef4444;
-    --color-very-unhealthy: #a855f7;
-    --color-hazardous: #7c2d12;
+    /* Semantic Status */
+    --status-good: #10b981;
+    --status-moderate: #f59e0b;
+    --status-usg: #f97316;
+    --status-unhealthy: #ef4444;
+    --status-very-unhealthy: #8b5cf6;
+    --status-hazardous: #881337;
 
     /* Typography */
-    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-hero: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'Space Grotesk', monospace;
 
-    /* Spacing Scale (4px increments) */
-    --space-xs: 0.25rem; /* 4px */
-    --space-sm: 0.5rem;  /* 8px */
-    --space-md: 1rem;    /* 16px */
-    --space-lg: 1.5rem;  /* 24px */
-    --space-xl: 2rem;    /* 32px */
-    --space-2xl: 3rem;   /* 48px */
-    --space-3xl: 4rem;   /* 64px */
-    --space-4xl: 6rem;   /* 96px */
+    /* Elevation & Glass */
+    --blur-glass: blur(24px) saturate(180%);
+    --blur-subtle: blur(12px);
 
-    /* Radii */
-    --radius-sm: 0.25rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 1rem;
+    /* Border Radii */
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
     --radius-full: 9999px;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-
     /* Transitions */
-    --transition-fast: 0.15s ease-in-out;
-    --transition-normal: 0.3s ease-in-out;
-    --transition-slow: 0.5s ease-in-out;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 0.15s;
+    --duration-normal: 0.3s;
+    --duration-slow: 0.6s;
 }
 
-/* CSS Reset */
+/* Base Reset & Box Sizing */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html {
     scroll-behavior: smooth;
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: var(--font-ui);
-    background-color: var(--bg-primary);
+    font-family: var(--font-sans);
     color: var(--text-primary);
-    transition: background-color var(--transition-normal), color var(--transition-normal);
+    background-color: var(--bg-deep);
+    min-height: 100vh;
     line-height: 1.5;
     overflow-x: hidden;
+    transition: background-color var(--duration-normal) var(--ease-out-expo);
 }
 
-img, picture, video, canvas, svg {
-    display: block;
-    max-width: 100%;
+/* Modern Typography Utilities */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
 }
 
-input, button, textarea, select {
-    font: inherit;
-}
-
-ul, ol {
-    list-style: none;
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
 }
 
 a {
@@ -93,70 +103,28 @@ a {
     text-decoration: none;
 }
 
-/* Scrollbar */
+button, input, select {
+    font-family: inherit;
+    border: none;
+    outline: none;
+    background: none;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: var(--text-muted);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-full);
 }
+
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-primary);
-}
-
-/* Typography Utilities */
-.font-ui { font-family: var(--font-ui); }
-.font-playfair { font-family: var(--font-hero); }
-
-.font-normal { font-weight: 400; }
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
-
-.text-sm { font-size: 0.875rem; }
-.text-base { font-size: 1rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-2xl { font-size: 1.5rem; }
-.text-hero { font-size: clamp(4rem, 10vw, 8rem); line-height: 1; }
-
-.text-muted { color: var(--text-muted); }
-.text-accent { color: var(--accent-primary); }
-
-.text-center { text-align: center; }
-
-/* Color Utilities */
-.text-good { color: var(--color-good); }
-.text-moderate { color: var(--color-moderate); }
-.text-usg { color: var(--color-usg); }
-.text-unhealthy { color: var(--color-unhealthy); }
-.text-very-unhealthy { color: var(--color-very-unhealthy); }
-.text-hazardous { color: var(--color-hazardous); }
-
-/* Spacing Utilities */
-.mt-xs { margin-top: var(--space-xs); }
-.mt-sm { margin-top: var(--space-sm); }
-.mt-md { margin-top: var(--space-md); }
-.mt-lg { margin-top: var(--space-lg); }
-.mb-xs { margin-bottom: var(--space-xs); }
-.mb-sm { margin-bottom: var(--space-sm); }
-.mb-md { margin-bottom: var(--space-md); }
-.mb-lg { margin-bottom: var(--space-lg); }
-
-/* Visually Hidden */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+    background: rgba(255, 255, 255, 0.3);
 }

@@ -1,178 +1,189 @@
-/* c:\Users\shrip\OneDrive\Desktop\WeatherApp\frontend\css\layout.css */
+/* ==========================================================================
+   ATMOS WEATHER — LAYOUT ARCHITECTURE
+   Responsive Bento Grid & Fluid Spatial Hierarchy
+   ========================================================================== */
 
-/* Mobile First Layout */
+/* Main App Shell */
+.app-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem 3rem 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
 
+/* Glass Header Navigation */
 .app-header {
     position: sticky;
-    top: 0;
+    top: 1rem;
     z-index: 50;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-sm) var(--space-md);
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--glass-border);
-    gap: var(--space-sm);
+    gap: 1.25rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--header-bg);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-full);
+    box-shadow: var(--glass-shadow);
 }
 
-.logo {
+.brand {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
-    color: var(--text-primary);
+    gap: 0.75rem;
+    cursor: pointer;
 }
 
-.logo-icon {
+.brand-icon {
     width: 32px;
     height: 32px;
-    color: var(--accent-primary);
-}
-
-.search-container {
-    flex: 1;
     display: flex;
     align-items: center;
-    position: relative;
-    max-width: 400px;
-}
-
-.controls-container {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-}
-
-.app-layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.main-content {
-    flex: 1;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-bottom: var(--space-2xl);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xl);
-}
-
-.hero-section {
-    width: 100%;
-    min-height: 50vh;
-    display: flex;
-    flex-direction: column;
     justify-content: center;
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+}
+
+.brand-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    background: linear-gradient(180deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Search Island */
+.search-wrapper {
+    flex: 1;
+    max-width: 480px;
+    position: relative;
+}
+
+.search-bar {
+    width: 100%;
+    display: flex;
     align-items: center;
-    padding: var(--space-xl) var(--space-md);
-    text-align: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: var(--bg-surface-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    transition: all var(--duration-normal) var(--ease-out-expo);
 }
 
-.forecast-section, .compare-section {
-    padding: 0 var(--space-md);
+.search-bar:focus-within {
+    border-color: var(--border-glow);
+    background: var(--bg-surface-elevated);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
 }
 
-.grid-2col {
+.search-input {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 0.925rem;
+    font-weight: 500;
+}
+
+.search-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.kbd-shortcut {
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--border-subtle);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-subtle);
+}
+
+/* Header Controls */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Quick Cities Rail */
+.quick-cities-rail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+}
+.quick-cities-rail::-webkit-scrollbar { display: none; }
+
+.city-pill {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--bg-surface-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--duration-fast) ease;
+}
+
+.city-pill:hover {
+    color: var(--text-primary);
+    border-color: var(--border-glow);
+    background: var(--bg-surface-elevated);
+    transform: translateY(-1px);
+}
+
+/* Main Bento Grid */
+.dashboard-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-md);
-    padding: 0 var(--space-md);
-}
-
-/* Sidebar styling for mobile (drawer) */
-.app-sidebar {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 280px;
-    height: 100vh;
-    background: var(--bg-secondary);
-    z-index: 100;
-    transition: right var(--transition-normal);
-    padding: var(--space-xl) var(--space-md);
-    box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-    overflow-y: auto;
-}
-
-.app-sidebar.open {
-    right: 0;
-}
-
-.close-sidebar {
-    position: absolute;
-    top: var(--space-sm);
-    right: var(--space-sm);
-    display: block; /* Visible on mobile */
-}
-
-/* Footer Layout */
-.app-footer {
-    padding: var(--space-lg) var(--space-md);
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-}
-
-/* Responsive Breakpoints */
-
-@media (min-width: 768px) {
-    .app-header {
-        padding: var(--space-sm) var(--space-xl);
-        gap: var(--space-lg);
-    }
-
-    .hero-section {
-        min-height: 60vh;
-    }
-
-    .grid-2col {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .compare-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+    gap: 1.5rem;
 }
 
 @media (min-width: 1024px) {
-    .app-layout {
-        flex-direction: row;
-    }
-
-    .main-content {
-        padding-right: 280px; /* Space for fixed sidebar */
-        padding-left: var(--space-xl);
-    }
-
-    .mobile-menu-btn {
-        display: none;
-    }
-
-    /* Fixed Sidebar on Desktop */
-    .app-sidebar {
-        position: fixed;
-        right: 0;
-        top: 64px; /* Header height approx */
-        height: calc(100vh - 64px);
-        box-shadow: none;
-        border-left: 1px solid var(--border-color);
-        background: transparent;
-    }
-
-    .close-sidebar {
-        display: none;
+    .dashboard-grid {
+        grid-template-columns: 1.35fr 1fr;
     }
 }
 
-@media (min-width: 1440px) {
-    .main-content {
-        padding-right: 320px;
+.grid-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Bento Sub-Grids */
+.metrics-quad-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .metrics-quad-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
-    .app-sidebar {
-        width: 320px;
+}
+
+.env-duo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .env-duo-grid {
+        grid-template-columns: 1fr 1fr;
     }
 }
