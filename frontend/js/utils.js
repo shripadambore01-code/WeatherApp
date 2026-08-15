@@ -1,7 +1,15 @@
 /**
  * Atmos Weather — Shared Utilities & Inline Vector Weather Icons
- * Complete vector icon system ensuring 100% offline reliability & zero broken images.
+ * Complete vector icon system and shared utility functions.
  */
+
+export function clamp(val, min = 0, max = 100) {
+    return Math.min(Math.max(val, min), max);
+}
+
+export function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
 
 export function debounce(fn, wait = 300) {
     let timeout;
@@ -95,6 +103,16 @@ export function formatHour(isoString) {
     return date.toLocaleTimeString([], { hour: 'numeric', hour12: true });
 }
 
+export function timeAgo(date) {
+    const now = new Date();
+    const d = date instanceof Date ? date : new Date(date);
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+}
+
 export function getAQIInfo(aqi) {
     if (aqi === null || aqi === undefined) return { label: 'N/A', color: '#888' };
     if (aqi <= 50) return { label: 'Good', color: '#10b981' };
@@ -130,12 +148,30 @@ export function getWeatherDescription(code) {
     return descriptions[code] || 'Clear Sky';
 }
 
-/**
- * High-Precision Vector Weather SVG Icon Generator
- * Eliminates all broken image icons and external network failures.
- */
+export function getWeatherIcon(code, isDay = true) {
+    const dayNight = isDay ? 'day' : 'night';
+    const iconMap = {
+        0: `clear-${dayNight}`,
+        1: `partly-cloudy-${dayNight}`,
+        2: `partly-cloudy-${dayNight}`,
+        3: `overcast-${dayNight}`,
+        45: `fog-${dayNight}`,
+        48: `fog-${dayNight}`,
+        51: 'drizzle', 53: 'drizzle', 55: 'drizzle',
+        56: 'sleet', 57: 'sleet',
+        61: 'rain', 63: 'rain', 65: 'rain',
+        66: 'sleet', 67: 'sleet',
+        71: 'snow', 73: 'snow', 75: 'snow', 77: 'snow',
+        80: 'rain', 81: 'rain', 82: 'rain',
+        85: 'snow', 86: 'snow',
+        95: 'thunderstorms',
+        96: 'thunderstorms-rain',
+        99: 'thunderstorms-rain'
+    };
+    return iconMap[code] || `partly-cloudy-${dayNight}`;
+}
+
 export function getWeatherSvgIcon(code, isDay = true, size = 32) {
-    // Colors
     const sunColor = '#f59e0b';
     const cloudColor = '#94a3b8';
     const cloudDark = '#64748b';
@@ -144,7 +180,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
     const lightningColor = '#eab308';
     const moonColor = '#818cf8';
 
-    // 1. Clear Sky
     if (code === 0 || code === 1) {
         if (isDay) {
             return `
@@ -164,7 +199,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         }
     }
 
-    // 2. Partly Cloudy
     if (code === 2) {
         if (isDay) {
             return `
@@ -184,7 +218,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         }
     }
 
-    // 3. Overcast
     if (code === 3) {
         return `
             <svg viewBox="0 0 64 64" width="${size}" height="${size}" fill="none">
@@ -194,7 +227,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         `;
     }
 
-    // 4. Fog
     if (code === 45 || code === 48) {
         return `
             <svg viewBox="0 0 64 64" width="${size}" height="${size}" fill="none">
@@ -205,7 +237,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         `;
     }
 
-    // 5. Drizzle / Rain Showers (51-67, 80-82)
     if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
         return `
             <svg viewBox="0 0 64 64" width="${size}" height="${size}" fill="none">
@@ -217,7 +248,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         `;
     }
 
-    // 6. Snow (71-77, 85-86)
     if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) {
         return `
             <svg viewBox="0 0 64 64" width="${size}" height="${size}" fill="none">
@@ -229,7 +259,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         `;
     }
 
-    // 7. Thunderstorms (95-99)
     if (code >= 95) {
         return `
             <svg viewBox="0 0 64 64" width="${size}" height="${size}" fill="none">
@@ -239,7 +268,6 @@ export function getWeatherSvgIcon(code, isDay = true, size = 32) {
         `;
     }
 
-    // Default Fallback: Sun & Cloud
     return `
         <svg viewBox="0 0 64 64" width="${size}" height="${size}" fill="none">
             <circle cx="24" cy="22" r="10" fill="${sunColor}" />

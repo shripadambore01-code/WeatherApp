@@ -48,35 +48,45 @@ const state = {
     isLoading: false
 };
 
+// Global Exposure for submodules
+window.atmosState = state;
+window.atmosLoadWeather = loadWeather;
+
 /* ─────────────────── Init ─────────────────── */
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('%c🧠 Atmos Weather Intelligence System', 'font-size:22px;font-weight:bold;color:#f59e0b');
 
-    // Core modules
-    initTheme();
-    initUnits();
-    initSearch();
-    initFavorites();
-    renderHistory();
-    initVoice();
-    initCompare();
-    await initI18n();
-    initPWA();
+    try {
+        // Initialize core modules
+        initTheme();
+        initUnits();
+        initSearch();
+        initFavorites();
+        renderHistory();
+        initVoice();
+        initCompare();
+        initPWA();
+        await initI18n();
 
-    // Intelligence UI handlers
-    setupIntelligenceUI();
-    setupEventListeners();
+        // Setup intelligence event handlers
+        setupIntelligenceUI();
+        setupEventListeners();
 
-    // Load initial city
-    const lastCity = retrieve('lastCity');
-    if (lastCity) {
-        await loadWeather(lastCity.lat, lastCity.lon, lastCity);
-    } else {
-        await initGeolocation();
+        // Load initial city (or cached / geolocation / fallback)
+        const lastCity = retrieve('lastCity');
+        if (lastCity && lastCity.lat && lastCity.lon) {
+            await loadWeather(lastCity.lat, lastCity.lon, lastCity);
+        } else {
+            // Default load London immediately so UI is 100% functional, then attempt geolocation
+            await loadWeather(51.5074, -0.1278, { name: 'London', country: 'United Kingdom', lat: 51.5074, lon: -0.1278 });
+            initGeolocation();
+        }
+
+        startAutoRefresh();
+    } catch (e) {
+        console.error('App init error:', e);
     }
-
-    startAutoRefresh();
 });
 
 /* ─────────────────── Event Listeners ─────────────────── */
@@ -85,9 +95,11 @@ function setupEventListeners() {
     // City selected
     window.addEventListener('citySelected', (e) => {
         const city = e.detail;
-        loadWeather(city.lat, city.lon, city);
-        addToHistory(city);
-        renderHistory();
+        if (city && city.lat !== undefined && city.lon !== undefined) {
+            loadWeather(city.lat, city.lon, city);
+            addToHistory(city);
+            renderHistory();
+        }
     });
 
     // Geolocation result
