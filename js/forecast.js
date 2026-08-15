@@ -22,35 +22,30 @@ export function updateDailyForecast(daily, units, unit = 'celsius') {
         const low = daily.temperature_2m_min?.[i];
         const code = daily.weather_code?.[i] ?? 0;
         const precipProb = daily.precipitation_probability_max?.[i] ?? 0;
-        const precip = daily.precipitation_sum?.[i] ?? 0;
-        const windMax = daily.wind_speed_10m_max?.[i] ?? 0;
 
         const iconName = getWeatherIcon(code, true);
         const description = getWeatherDescription(code);
 
         const row = document.createElement('div');
         row.className = 'daily-row';
-        row.style.animationDelay = `${i * 60}ms`;
+        row.style.animationDelay = `${i * 50}ms`;
         row.innerHTML = `
             <div class="daily-day">${formatDate(date, 'short')}</div>
             <div class="daily-icon">
                 <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
-                     alt="${description}" width="36" height="36" loading="lazy"
-                     onerror="this.style.display='none'" />
+                     alt="${description}" width="32" height="32" loading="lazy"
+                     onerror="this.onerror=null; this.src='https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg';" />
             </div>
             <div class="daily-desc">${description}</div>
-            <div class="daily-precip">
-                ${precipProb > 0 ? `<span class="precip-badge">${precipProb}%</span>` : ''}
-            </div>
             <div class="daily-temps">
-                <span class="temp-high">${formatTemp(high, unit)}</span>
+                <span class="temp-low">${formatTemp(low, unit)}</span>
                 <div class="temp-bar">
                     <div class="temp-range" style="
                         left: ${tempBarPosition(low, daily.temperature_2m_min, daily.temperature_2m_max)}%;
                         width: ${tempBarWidth(low, high, daily.temperature_2m_min, daily.temperature_2m_max)}%;
                     "></div>
                 </div>
-                <span class="temp-low">${formatTemp(low, unit)}</span>
+                <span class="temp-high">${formatTemp(high, unit)}</span>
             </div>
         `;
         container.appendChild(row);
@@ -90,7 +85,7 @@ export function updateHourlyForecast(hourly, units, unit = 'celsius') {
         const precipProb = hourly.precipitation_probability?.[i] ?? 0;
 
         const iconName = getWeatherIcon(code, isDay);
-        const delay = (i - startIdx) * 40;
+        const delay = (i - startIdx) * 30;
 
         const card = document.createElement('div');
         card.className = 'hourly-card';
@@ -99,7 +94,7 @@ export function updateHourlyForecast(hourly, units, unit = 'celsius') {
             <div class="hourly-time">${formatHour(time)}</div>
             <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
                  alt="${getWeatherDescription(code)}" class="hourly-icon" width="32" height="32"
-                 loading="lazy" onerror="this.style.display='none'" />
+                 loading="lazy" onerror="this.onerror=null; this.src='https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg';" />
             <div class="hourly-temp">${formatTemp(temp, unit)}</div>
             ${precipProb > 0 ? `<div class="hourly-precip">${precipProb}%</div>` : ''}
         `;
@@ -114,7 +109,7 @@ function tempBarPosition(low, allMins, allMaxes) {
     const globalMin = Math.min(...allMins.filter(v => v !== null));
     const globalMax = Math.max(...allMaxes.filter(v => v !== null));
     const range = globalMax - globalMin || 1;
-    return ((low - globalMin) / range) * 100;
+    return Math.max(0, Math.min(90, ((low - globalMin) / range) * 100));
 }
 
 function tempBarWidth(low, high, allMins, allMaxes) {
@@ -122,5 +117,5 @@ function tempBarWidth(low, high, allMins, allMaxes) {
     const globalMin = Math.min(...allMins.filter(v => v !== null));
     const globalMax = Math.max(...allMaxes.filter(v => v !== null));
     const range = globalMax - globalMin || 1;
-    return ((high - low) / range) * 100;
+    return Math.max(15, Math.min(100, ((high - low) / range) * 100));
 }

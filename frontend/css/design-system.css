@@ -1,106 +1,122 @@
 /* ==========================================================================
-   ATMOS WEATHER — DESIGN SYSTEM & TOKENS
-   Editorial, Anti-Slop Meteorological Interface
+   ATMOS WEATHER — HALLMARK BUBBLE DESIGN SYSTEM
+   Tactile, Editorial, High-Contrast Meteorological System
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Color Palette — Atmospheric Slate & Deep Obsidian */
-    --color-pure-white: #ffffff;
-    --color-slate-50: #f8fafc;
-    --color-slate-100: #f1f5f9;
-    --color-slate-200: #e2e8f0;
-    --color-slate-300: #cbd5e1;
-    --color-slate-400: #94a3b8;
-    --color-slate-500: #64748b;
-    --color-slate-600: #475569;
-    --color-slate-700: #334155;
-    --color-slate-800: #1e293b;
-    --color-slate-900: #0f172a;
-    --color-slate-950: #020617;
+    /* Hallmark Bubble — Warm Cream & Tactile Multi-Accent */
+    --color-paper: #faf8f5;
+    --color-paper-muted: #f2ede4;
+    --color-surface: #ffffff;
+    --color-surface-hover: #ffffff;
+    --color-surface-sunken: #ede7dc;
 
-    /* Weather Accents */
-    --accent-sky: #38bdf8;
-    --accent-sun: #fbbf24;
-    --accent-warm: #f97316;
-    --accent-rain: #60a5fa;
-    --accent-storm: #a855f7;
-    --accent-snow: #e0f2fe;
+    --color-ink: #18181b;
+    --color-ink-secondary: #52525b;
+    --color-ink-tertiary: #a1a1aa;
 
-    /* Semantic Status */
-    --status-good: #10b981;
-    --status-moderate: #f59e0b;
-    --status-usg: #f97316;
-    --status-unhealthy: #ef4444;
-    --status-very-unhealthy: #8b5cf6;
-    --status-hazardous: #881337;
+    --color-border: #e8e2d7;
+    --color-border-subtle: #f0ebe1;
+    --color-border-focus: #18181b;
+
+    /* Signature Hallmark Tactile Accents */
+    --accent-amber: #f59e0b;
+    --accent-amber-light: #fef3c7;
+    --accent-amber-dark: #d97706;
+
+    --accent-sky: #0284c7;
+    --accent-sky-light: #e0f2fe;
+    --accent-sky-dark: #0369a1;
+
+    --accent-coral: #f43f5e;
+    --accent-coral-light: #ffe4e6;
+
+    --accent-mint: #10b981;
+    --accent-mint-light: #d1fae5;
+
+    --accent-indigo: #6366f1;
+    --accent-indigo-light: #e0e7ff;
 
     /* Typography */
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-    --font-mono: 'Space Grotesk', monospace;
+    --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
 
-    /* Elevation & Glass */
-    --blur-glass: blur(24px) saturate(180%);
-    --blur-subtle: blur(12px);
+    /* Radii & Bubble Geometry */
+    --radius-pill: 9999px;
+    --radius-bubble-sm: 14px;
+    --radius-bubble: 22px;
+    --radius-bubble-lg: 30px;
 
-    /* Border Radii */
-    --radius-xs: 6px;
-    --radius-sm: 10px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-xl: 32px;
-    --radius-full: 9999px;
-
-    /* Transitions */
-    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    --duration-fast: 0.15s;
-    --duration-normal: 0.3s;
-    --duration-slow: 0.6s;
+    /* Tactile Physical Shadows (Hallmark signature press) */
+    --shadow-bubble: 0 4px 0 0 var(--color-border), 0 10px 24px -6px rgba(24, 24, 27, 0.06);
+    --shadow-bubble-sm: 0 2px 0 0 var(--color-border), 0 4px 12px -2px rgba(24, 24, 27, 0.04);
+    --shadow-bubble-hover: 0 6px 0 0 var(--color-border), 0 16px 32px -8px rgba(24, 24, 27, 0.1);
+    --shadow-button-press: 0 1px 0 0 var(--color-border);
 }
 
-/* Base Reset & Box Sizing */
+/* Dark Mode Bubble Palette */
+[data-theme='dark'] {
+    --color-paper: #121216;
+    --color-paper-muted: #1a1a20;
+    --color-surface: #1e1e26;
+    --color-surface-hover: #262630;
+    --color-surface-sunken: #16161c;
+
+    --color-ink: #fafafa;
+    --color-ink-secondary: #a1a1aa;
+    --color-ink-tertiary: #71717a;
+
+    --color-border: #2e2e3a;
+    --color-border-subtle: #242430;
+    --color-border-focus: #fafafa;
+
+    --accent-amber-light: rgba(245, 158, 11, 0.15);
+    --accent-sky-light: rgba(2, 132, 199, 0.15);
+    --accent-coral-light: rgba(244, 63, 94, 0.15);
+    --accent-mint-light: rgba(16, 185, 129, 0.15);
+    --accent-indigo-light: rgba(99, 102, 241, 0.15);
+
+    --shadow-bubble: 0 4px 0 0 var(--color-border), 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+    --shadow-bubble-sm: 0 2px 0 0 var(--color-border), 0 6px 16px -4px rgba(0, 0, 0, 0.4);
+    --shadow-bubble-hover: 0 6px 0 0 var(--color-border), 0 18px 36px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* Global Reset & Base */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent;
 }
 
 html {
     scroll-behavior: smooth;
-    font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: var(--font-sans);
-    color: var(--text-primary);
-    background-color: var(--bg-deep);
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-paper);
     min-height: 100vh;
     line-height: 1.5;
     overflow-x: hidden;
-    transition: background-color var(--duration-normal) var(--ease-out-expo);
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Modern Typography Utilities */
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: -0.03em;
-    line-height: 1.15;
+    line-height: 1.2;
 }
 
 .tabular-nums {
-    font-variant-numeric: tabular-nums;
     font-family: var(--font-mono);
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
+    font-variant-numeric: tabular-nums;
 }
 
 button, input, select {
@@ -108,23 +124,4 @@ button, input, select {
     border: none;
     outline: none;
     background: none;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
 }

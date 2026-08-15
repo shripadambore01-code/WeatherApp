@@ -86,12 +86,13 @@ export function updateCurrentWeather(data, cityInfo, unit = 'celsius') {
     const iconContainer = document.getElementById('hero-icon-container');
     if (iconContainer) {
         const iconName = getWeatherIcon(current.weather_code, isDay);
+        const desc = getWeatherDescription(current.weather_code);
         iconContainer.innerHTML = `
             <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg"
-                 alt="${getWeatherDescription(current.weather_code)}"
+                 alt="${desc}"
                  class="condition-icon-hero"
-                 width="110" height="110"
-                 onerror="this.style.display='none'" />
+                 width="96" height="96"
+                 onerror="this.onerror=null; this.src='https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg';" />
         `;
     }
 }

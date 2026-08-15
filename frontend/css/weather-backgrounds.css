@@ -1,101 +1,34 @@
 /* ==========================================================================
-   ATMOS WEATHER — LIVING ATMOSPHERIC BACKGROUNDS
-   Multi-stop Mesh Auras with Ambient Luminous Depth
+   ATMOS WEATHER — HALLMARK AMBIENT TONES
+   Clean Warm Paper Backgrounds with Subtle Weather Accent Tones
    ========================================================================== */
+
+/* Subtly tint the paper backdrop based on weather condition */
+[data-weather="clear-day"] {
+    --accent-theme-glow: rgba(245, 158, 11, 0.08);
+}
+
+[data-weather="clear-night"] {
+    --accent-theme-glow: rgba(99, 102, 241, 0.08);
+}
+
+[data-weather="rain"], [data-weather="rain-day"] {
+    --accent-theme-glow: rgba(2, 132, 199, 0.08);
+}
+
+[data-weather="thunderstorm"] {
+    --accent-theme-glow: rgba(168, 85, 247, 0.08);
+}
+
+[data-weather="snow"] {
+    --accent-theme-glow: rgba(56, 189, 248, 0.08);
+}
 
 .ambient-backdrop {
     position: fixed;
     inset: 0;
-    z-index: -2;
-    pointer-events: none;
-    overflow: hidden;
-    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.ambient-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.65;
-    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.ambient-orb-1 {
-    width: 60vw;
-    height: 60vw;
-    top: -15vw;
-    left: -10vw;
-}
-
-.ambient-orb-2 {
-    width: 50vw;
-    height: 50vw;
-    top: 25vh;
-    right: -10vw;
-}
-
-.ambient-orb-3 {
-    width: 70vw;
-    height: 50vw;
-    bottom: -15vh;
-    left: 20vw;
-}
-
-/* 1. Clear Day — Solar Amber & Crystal Azure */
-[data-weather="clear-day"] .ambient-orb-1 { background: radial-gradient(circle, #38bdf8 0%, rgba(56, 189, 248, 0) 70%); }
-[data-weather="clear-day"] .ambient-orb-2 { background: radial-gradient(circle, #f59e0b 0%, rgba(245, 158, 11, 0) 70%); }
-[data-weather="clear-day"] .ambient-orb-3 { background: radial-gradient(circle, #0284c7 0%, rgba(2, 132, 199, 0) 70%); }
-
-/* 2. Clear Night — Deep Indigo, Sapphire & Twilight Starfield */
-[data-weather="clear-night"] .ambient-orb-1 { background: radial-gradient(circle, #1e1b4b 0%, rgba(30, 27, 75, 0) 70%); }
-[data-weather="clear-night"] .ambient-orb-2 { background: radial-gradient(circle, #312e81 0%, rgba(49, 46, 129, 0) 70%); }
-[data-weather="clear-night"] .ambient-orb-3 { background: radial-gradient(circle, #0f172a 0%, rgba(15, 23, 42, 0) 70%); }
-
-/* 3. Partly Cloudy / Clouds Day — Soft Pearl & Slate Mist */
-[data-weather="partly-cloudy-day"],
-[data-weather="clouds-day"] {
-    & .ambient-orb-1 { background: radial-gradient(circle, #60a5fa 0%, rgba(96, 165, 250, 0) 70%); }
-    & .ambient-orb-2 { background: radial-gradient(circle, #94a3b8 0%, rgba(148, 163, 184, 0) 70%); }
-    & .ambient-orb-3 { background: radial-gradient(circle, #cbd5e1 0%, rgba(203, 213, 225, 0) 70%); }
-}
-
-/* 4. Rain & Drizzle — Oceanic Cyan & Deep Rain Storm */
-[data-weather="rain"],
-[data-weather="rain-day"],
-[data-weather="rain-night"] {
-    & .ambient-orb-1 { background: radial-gradient(circle, #0284c7 0%, rgba(2, 132, 199, 0) 70%); }
-    & .ambient-orb-2 { background: radial-gradient(circle, #0f766e 0%, rgba(15, 118, 110, 0) 70%); }
-    & .ambient-orb-3 { background: radial-gradient(circle, #1e293b 0%, rgba(30, 41, 59, 0) 70%); }
-}
-
-/* 5. Thunderstorm — Electrifying Violet & Midnight Navy */
-[data-weather="thunderstorm"],
-[data-weather="thunderstorms"] {
-    & .ambient-orb-1 { background: radial-gradient(circle, #7c3aed 0%, rgba(124, 58, 237, 0) 70%); }
-    & .ambient-orb-2 { background: radial-gradient(circle, #4338ca 0%, rgba(67, 56, 202, 0) 70%); }
-    & .ambient-orb-3 { background: radial-gradient(circle, #1e1b4b 0%, rgba(30, 27, 75, 0) 70%); }
-}
-
-/* 6. Snow & Ice — Glacial Cyan & Arctic Frost */
-[data-weather="snow"] {
-    & .ambient-orb-1 { background: radial-gradient(circle, #bae6fd 0%, rgba(186, 230, 253, 0) 70%); }
-    & .ambient-orb-2 { background: radial-gradient(circle, #e0e7ff 0%, rgba(224, 231, 255, 0) 70%); }
-    & .ambient-orb-3 { background: radial-gradient(circle, #38bdf8 0%, rgba(56, 189, 248, 0) 70%); }
-}
-
-/* 7. Fog & Mist — Soft Ambient Diffuse */
-[data-weather="fog"] {
-    & .ambient-orb-1 { background: radial-gradient(circle, #64748b 0%, rgba(100, 116, 139, 0) 70%); }
-    & .ambient-orb-2 { background: radial-gradient(circle, #475569 0%, rgba(71, 85, 105, 0) 70%); }
-    & .ambient-orb-3 { background: radial-gradient(circle, #334155 0%, rgba(51, 65, 85, 0) 70%); }
-}
-
-/* Subtle Film Grain Texture Overlay for Depth */
-.noise-overlay {
-    position: fixed;
-    inset: 0;
     z-index: -1;
-    opacity: 0.025;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background: radial-gradient(circle at 50% 10%, var(--accent-theme-glow, rgba(245, 158, 11, 0.04)) 0%, transparent 60%);
+    transition: background 0.8s ease;
 }

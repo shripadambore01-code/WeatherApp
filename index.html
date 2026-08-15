@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Atmos — High-precision atmospheric weather & environmental intelligence">
-    <meta name="theme-color" content="#050b14">
-    <title>Atmos — Atmospheric Weather Intelligence</title>
+    <meta name="theme-color" content="#faf8f5">
+    <title>Atmos — Weather Intelligence</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'%3E%3Cpath d='M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.177 10.2075 17.8546 10.021C17.3822 6.61111 14.464 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2384 4.01188 11.474 4.03487 11.7061C1.76159 12.1931 0 14.1537 0 16.5C0 19.1026 2.01258 21.2361 4.56847 21.4795'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'%3E%3Cpath d='M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.177 10.2075 17.8546 10.021C17.3822 6.61111 14.464 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2384 4.01188 11.474 4.03487 11.7061C1.76159 12.1931 0 14.1537 0 16.5C0 19.1026 2.01258 21.2361 4.56847 21.4795'/%3E%3C/svg%3E">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -23,49 +23,46 @@
     <link rel="stylesheet" href="css/components.css">
 </head>
 <body data-weather="clear-day">
-    <!-- Ambient Living Mesh Atmosphere -->
-    <div class="ambient-backdrop" aria-hidden="true">
-        <div class="ambient-orb ambient-orb-1"></div>
-        <div class="ambient-orb ambient-orb-2"></div>
-        <div class="ambient-orb ambient-orb-3"></div>
-    </div>
-    <div class="noise-overlay" aria-hidden="true"></div>
+    <!-- Ambient Weather Background Tint -->
+    <div class="ambient-backdrop" aria-hidden="true"></div>
 
-    <div class="app-container">
-        <!-- Sticky Navigation Header -->
-        <header class="app-header">
-            <div class="brand" onclick="window.location.reload()">
-                <div class="brand-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+    <div class="app-wrapper">
+        <!-- Floating Hallmark Header -->
+        <header class="bubble-header">
+            <div class="brand-pill" onclick="window.location.reload()">
+                <div class="brand-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
                         <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.177 10.2075 17.8546 10.021C17.3822 6.61111 14.464 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2384 4.01188 11.474 4.03487 11.7061C1.76159 12.1931 0 14.1537 0 16.5C0 19.1026 2.01258 21.2361 4.56847 21.4795"/>
                     </svg>
                 </div>
-                <span class="brand-title">Atmos</span>
+                <span class="brand-text">Atmos</span>
             </div>
 
-            <div class="search-wrapper">
-                <div class="search-bar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--text-tertiary);">
+            <!-- Search Island -->
+            <div class="search-pill-box">
+                <div class="search-inner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--color-ink-tertiary);">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
                     </svg>
-                    <input type="text" id="search-input" class="search-input" placeholder="Search city or coordinates..." autocomplete="off">
-                    <button class="btn-icon" id="voice-btn" aria-label="Voice Search" title="Search with Voice" style="width: 28px; height: 28px;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <input type="text" id="search-input" class="search-input-field" placeholder="Search city or coordinates..." autocomplete="off">
+                    <button class="tactile-btn-icon" id="voice-btn" aria-label="Voice Search" title="Search with Voice" style="width: 26px; height: 26px; border: none; box-shadow: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
                         </svg>
                     </button>
-                    <button class="btn-icon" id="locate-btn" aria-label="Use my location" title="Locate Current Position" style="width: 28px; height: 28px;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <button class="tactile-btn-icon" id="locate-btn" aria-label="Use my location" title="Locate Current Position" style="width: 26px; height: 26px; border: none; box-shadow: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                             <circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
                         </svg>
                     </button>
-                    <span class="kbd-shortcut">/</span>
+                    <span class="search-kbd">/</span>
                 </div>
                 <div class="search-dropdown hidden" id="search-dropdown"></div>
             </div>
 
-            <div class="header-actions">
-                <select id="language-select" class="city-pill" style="cursor: pointer;">
+            <!-- Controls Group -->
+            <div class="header-actions-group">
+                <select id="language-select" class="tactile-btn" style="padding: 0.4rem 0.75rem; cursor: pointer;">
                     <option value="en">EN</option>
                     <option value="es">ES</option>
                     <option value="fr">FR</option>
@@ -74,259 +71,253 @@
                     <option value="ja">JA</option>
                 </select>
 
-                <div class="unit-switch-control" id="unit-switch-btn" title="Toggle °C / °F">
-                    <input type="checkbox" id="unit-toggle" class="sr-only">
-                    <span class="unit-opt selected" id="opt-c">°C</span>
-                    <span class="unit-opt" id="opt-f">°F</span>
+                <!-- Clean Toggle Capsule (No raw checkboxes) -->
+                <div class="unit-toggle-pill" id="unit-switch-btn" title="Toggle °C / °F">
+                    <span class="unit-chip selected" id="opt-c">°C</span>
+                    <span class="unit-chip" id="opt-f">°F</span>
                 </div>
 
-                <button class="btn-icon" id="theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
-                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                <button class="tactile-btn-icon" id="theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
                 </button>
 
-                <button class="btn-icon" id="compare-btn" aria-label="Compare Cities" title="Compare Two Cities">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <button class="tactile-btn-icon" id="compare-btn" aria-label="Compare Cities" title="Compare Cities">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
                         <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
                     </svg>
                 </button>
 
-                <button class="btn-icon" id="sidebar-toggle" aria-label="Saved Cities & History" title="Favorites & History">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <button class="tactile-btn-icon" id="sidebar-toggle" aria-label="Saved Locations" title="Favorites & History">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                     </svg>
                 </button>
             </div>
         </header>
 
-        <!-- Quick City Selector Rail -->
-        <div class="quick-cities-rail">
-            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; margin-right: 0.25rem;">Popular:</span>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'London', country:'United Kingdom', lat:51.5074, lon:-0.1278}}))">London</button>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Tokyo', country:'Japan', lat:35.6762, lon:139.6503}}))">Tokyo</button>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'New York', country:'United States', lat:40.7128, lon:-74.0060}}))">New York</button>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Paris', country:'France', lat:48.8566, lon:2.3522}}))">Paris</button>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Dubai', country:'United Arab Emirates', lat:25.2048, lon:55.2708}}))">Dubai</button>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Mumbai', country:'India', lat:19.0760, lon:72.8777}}))">Mumbai</button>
-            <button class="city-pill" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Sydney', country:'Australia', lat:-33.8688, lon:151.2093}}))">Sydney</button>
+        <!-- Popular Locations Bar -->
+        <div class="popular-rail">
+            <span class="rail-tag">Popular:</span>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'London', country:'United Kingdom', lat:51.5074, lon:-0.1278}}))">London</button>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Tokyo', country:'Japan', lat:35.6762, lon:139.6503}}))">Tokyo</button>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'New York', country:'United States', lat:40.7128, lon:-74.0060}}))">New York</button>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Paris', country:'France', lat:48.8566, lon:2.3522}}))">Paris</button>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Dubai', country:'United Arab Emirates', lat:25.2048, lon:55.2708}}))">Dubai</button>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Mumbai', country:'India', lat:19.0760, lon:72.8777}}))">Mumbai</button>
+            <button class="tactile-btn" onclick="window.dispatchEvent(new CustomEvent('citySelected', {detail:{name:'Sydney', country:'Australia', lat:-33.8688, lon:151.2093}}))">Sydney</button>
         </div>
 
-        <!-- Weather Alerts Banner -->
+        <!-- Alerts -->
         <div id="alerts-section" class="hidden"></div>
 
-        <!-- Main Bento Dashboard -->
-        <main class="dashboard-grid">
-            <!-- LEFT COLUMN: Hero + Hourly + 7-Day + Trends -->
-            <div class="grid-col">
-                <!-- 1. Hero Weather Card -->
-                <section class="glass-card hero-weather-card" id="hero-section">
-                    <div class="hero-top-row">
-                        <div class="location-meta">
-                            <div class="location-badge">
+        <!-- Main Bento Grid -->
+        <main class="bento-grid">
+            <!-- LEFT COLUMN -->
+            <div class="bento-col">
+                <!-- 1. Hero Card -->
+                <section class="bubble-card hero-card" id="hero-section">
+                    <div class="hero-header-row">
+                        <div>
+                            <div class="station-pill">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                                <span>Live Station</span>
+                                <span>Live Observation</span>
                             </div>
-                            <h1 class="city-heading" id="hero-city">London, UK</h1>
-                            <div class="current-time-tag" id="last-updated">Updated Just Now</div>
+                            <h1 class="city-title" id="hero-city">London, UK</h1>
+                            <div class="updated-subtext" id="last-updated">Updated Just Now</div>
                         </div>
 
-                        <button class="btn-icon" id="favorite-btn" aria-label="Add to favorites" title="Favorite Location">
+                        <button class="tactile-btn-icon" id="favorite-btn" aria-label="Favorite" title="Save to Favorites">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                             </svg>
                         </button>
                     </div>
 
-                    <div class="hero-main-stats">
-                        <div class="temp-huge-wrap">
-                            <div class="temp-huge tabular-nums" id="hero-temp">18°</div>
+                    <div class="hero-body-row">
+                        <div>
+                            <div class="huge-temp-display tabular-nums" id="hero-temp">18°</div>
                         </div>
 
-                        <div class="condition-visual">
-                            <div id="hero-icon-container">
-                                <img src="https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg" class="condition-icon-hero" alt="Weather condition" width="110" height="110" />
+                        <div class="hero-condition-side">
+                            <div class="hero-icon-frame" id="hero-icon-container">
+                                <img src="https://basmilius.github.io/weather-icons/production/fill/all/partly-cloudy-day.svg" alt="Weather Condition" width="96" height="96" />
                             </div>
-                            <div class="condition-label" id="hero-condition">Partly Cloudy</div>
-                            <div class="feels-like-pill" id="hero-feels-like">Feels like 17°C</div>
+                            <div class="hero-condition-text" id="hero-condition">Partly Cloudy</div>
+                            <div class="feels-pill" id="hero-feels-like">Feels like 17°C</div>
                         </div>
                     </div>
 
-                    <!-- Min/Max Progression Bar -->
-                    <div class="day-range-bar-wrap">
-                        <span class="range-label" id="hero-temp-min">Min: 12°</span>
-                        <div class="range-track">
-                            <div class="range-fill" style="left: 20%; width: 60%;"></div>
+                    <!-- Min / Max Day Progression -->
+                    <div class="day-range-box">
+                        <span class="range-txt" id="hero-temp-min">Min: 12°</span>
+                        <div class="range-bar-track">
+                            <div class="range-bar-fill" style="left: 20%; width: 60%;"></div>
                         </div>
-                        <span class="range-label" id="hero-temp-max">Max: 22°</span>
+                        <span class="range-txt" id="hero-temp-max">Max: 22°</span>
                     </div>
                 </section>
 
-                <!-- 2. 24-Hour Hourly Timeline -->
-                <section class="glass-card">
-                    <div class="card-header-row">
-                        <h2 class="card-title">
+                <!-- 2. 24-Hour Forecast Timeline -->
+                <section class="bubble-card">
+                    <div class="card-header-bar">
+                        <h2 class="card-heading">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             24-Hour Forecast Timeline
                         </h2>
                     </div>
-                    <div class="hourly-ribbon" id="hourly-container">
-                        <!-- Populated dynamically by forecast.js -->
+                    <div class="hourly-scroll-strip" id="hourly-container">
+                        <!-- Populated by forecast.js -->
                     </div>
                 </section>
 
-                <!-- 3. 7-Day Extended Outlook -->
-                <section class="glass-card">
-                    <div class="card-header-row">
-                        <h2 class="card-title">
+                <!-- 3. 7-Day Extended Forecast -->
+                <section class="bubble-card">
+                    <div class="card-header-bar">
+                        <h2 class="card-heading">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                             7-Day Meteorological Outlook
                         </h2>
                     </div>
-                    <div class="daily-forecast-list" id="daily-container">
-                        <!-- Populated dynamically by forecast.js -->
+                    <div class="daily-rows-wrap" id="daily-container">
+                        <!-- Populated by forecast.js -->
                     </div>
                 </section>
 
                 <!-- 4. Interactive Trend Curves -->
-                <section class="glass-card">
-                    <div class="card-header-row">
-                        <h2 class="card-title">
+                <section class="bubble-card">
+                    <div class="card-header-bar">
+                        <h2 class="card-heading">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                            Temperature & Precipitation Trends
+                            Temperature & Precipitation Curves
                         </h2>
                     </div>
                     <div id="temp-chart" style="min-height: 240px;"></div>
                 </section>
             </div>
 
-            <!-- RIGHT COLUMN: Environmental + Quad Metrics + Radar Map -->
-            <div class="grid-col">
-                <!-- 1. Environmental Duo (Air Quality & UV Index) -->
-                <div class="env-duo-grid">
-                    <!-- Air Quality -->
-                    <div class="glass-card" id="aqi-section">
-                        <div class="card-header-row">
-                            <h2 class="card-title">
+            <!-- RIGHT COLUMN -->
+            <div class="bento-col">
+                <!-- 1. Environmental Duo (AQI + UV) -->
+                <div class="duo-grid">
+                    <!-- AQI -->
+                    <div class="bubble-card" id="aqi-section">
+                        <div class="card-header-bar">
+                            <h2 class="card-heading">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M6 18h8a3 3 0 0 0 0-6 3 3 0 0 0-3-3h-1"/><path d="M4 12h4a3 3 0 0 0 0-6 3 3 0 0 0-3-3H4"/></svg>
                                 Air Quality Index
                             </h2>
                         </div>
-                        <div class="aqi-main-display">
-                            <div class="aqi-num tabular-nums" id="aqi-score" style="color: #10b981;">34</div>
-                            <div class="aqi-status-badge" id="aqi-status" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">Good</div>
+                        <div class="aqi-score-flex">
+                            <div class="aqi-huge-num tabular-nums" id="aqi-score" style="color: #10b981;">35</div>
+                            <div class="aqi-badge" id="aqi-status" style="background: var(--accent-mint-light); color: #047857;">Good</div>
                         </div>
-                        <div class="aqi-track">
-                            <div class="aqi-pointer" id="aqi-marker" style="left: 15%;"></div>
+                        <div class="aqi-meter-bar">
+                            <div class="aqi-needle" id="aqi-marker" style="left: 15%;"></div>
                         </div>
-                        <div class="pollutant-chips pollutants-grid">
-                            <!-- Pollutant boxes populated by aqi.js -->
+                        <div class="pollutants-mini-grid pollutants-grid">
+                            <!-- Pollutant items populated by aqi.js -->
                         </div>
                     </div>
 
                     <!-- UV Index -->
-                    <div class="glass-card" id="uv-section">
-                        <div class="card-header-row">
-                            <h2 class="card-title">
+                    <div class="bubble-card" id="uv-section">
+                        <div class="card-header-bar">
+                            <h2 class="card-heading">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
                                 UV Radiation
                             </h2>
                         </div>
-                        <div class="uv-dial-wrap">
-                            <svg class="uv-semicircle-svg" viewBox="0 0 100 55">
-                                <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10" stroke-linecap="round"/>
-                                <path id="uv-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#f59e0b" stroke-width="10" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="65"/>
+                        <div class="uv-dial-center">
+                            <svg class="uv-dial-svg" viewBox="0 0 100 55">
+                                <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--color-paper-muted)" stroke-width="10" stroke-linecap="round"/>
+                                <path id="uv-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--accent-amber)" stroke-width="10" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="65"/>
                             </svg>
                             <div>
-                                <div class="uv-score-val tabular-nums" id="uv-score">4</div>
-                                <div class="card-title" id="uv-status" style="color: #f59e0b; justify-content: center; margin-top: 4px;">Moderate</div>
+                                <div class="uv-val-txt tabular-nums" id="uv-score">4</div>
+                                <div class="card-heading" id="uv-status" style="color: var(--accent-amber); justify-content: center; margin-top: 4px;">Moderate</div>
                             </div>
-                            <p class="text-center" style="font-size: 0.775rem; color: var(--text-tertiary);">Sun protection recommended during midday.</p>
+                            <p style="font-size: 0.75rem; color: var(--color-ink-tertiary);">Sun protection recommended.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Quad Meteorological Sensor Grid -->
-                <div class="metrics-quad-grid">
+                <!-- 2. Quad Meteorological Sensors (2x2 Grid) -->
+                <div class="quad-grid">
                     <!-- Humidity -->
-                    <div class="glass-card metric-tile">
-                        <div class="metric-header">
+                    <div class="bubble-card sensor-box">
+                        <div class="sensor-top">
                             <span>Humidity</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-rain);"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-sky);"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
                         </div>
-                        <div class="metric-big-val tabular-nums" id="hero-humidity">58%</div>
-                        <div class="metric-sub">Dew point ~10°C</div>
+                        <div class="sensor-val tabular-nums" id="hero-humidity">58%</div>
+                        <div class="sensor-note">Dew point ~10°C</div>
                     </div>
 
-                    <!-- Wind Velocity -->
-                    <div class="glass-card metric-tile">
-                        <div class="metric-header">
+                    <!-- Wind -->
+                    <div class="bubble-card sensor-box">
+                        <div class="sensor-top">
                             <span>Wind</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-sky);"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-amber);"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/></svg>
                         </div>
-                        <div class="metric-big-val tabular-nums" id="hero-wind">14 km/h</div>
-                        <div class="metric-sub">Gusts to 22 km/h</div>
+                        <div class="sensor-val tabular-nums" id="hero-wind">14 km/h</div>
+                        <div class="sensor-note">Gusts to 22 km/h</div>
                     </div>
 
                     <!-- Pressure -->
-                    <div class="glass-card metric-tile">
-                        <div class="metric-header">
+                    <div class="bubble-card sensor-box">
+                        <div class="sensor-top">
                             <span>Pressure</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-sun);"><circle cx="12" cy="12" r="10"/><path d="m14 14-4-4"/><path d="M12 6v2"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-indigo);"><circle cx="12" cy="12" r="10"/><path d="m14 14-4-4"/><path d="M12 6v2"/></svg>
                         </div>
-                        <div class="metric-big-val tabular-nums" id="hero-pressure">1016 hPa</div>
-                        <div class="metric-sub">Stable barometer</div>
+                        <div class="sensor-val tabular-nums" id="hero-pressure">1016 hPa</div>
+                        <div class="sensor-note">Barometric normal</div>
                     </div>
 
-                    <!-- Sun Daylight Cycle -->
-                    <div class="glass-card metric-tile">
-                        <div class="metric-header">
+                    <!-- Daylight -->
+                    <div class="bubble-card sensor-box">
+                        <div class="sensor-top">
                             <span>Daylight</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-sun);"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color: var(--accent-amber);"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2"/></svg>
                         </div>
-                        <div class="metric-big-val tabular-nums" id="hero-sunrise" style="font-size: 1.25rem; margin-top: 4px;">06:12 AM</div>
-                        <div class="metric-sub">Sunset <span id="hero-sunset" style="font-weight: 600; color: var(--text-primary);">08:24 PM</span></div>
+                        <div class="sensor-val tabular-nums" id="hero-sunrise" style="font-size: 1.15rem;">06:12 AM</div>
+                        <div class="sensor-note">Sunset <span id="hero-sunset" style="font-weight: 700; color: var(--color-ink);">08:24 PM</span></div>
                     </div>
                 </div>
 
-                <!-- 3. Radar & Satellite Map -->
-                <section class="glass-card radar-map-card">
-                    <div id="weather-map" class="map-viewport"></div>
+                <!-- 3. Radar Map -->
+                <section class="bubble-card" style="padding: 0; overflow: hidden;">
+                    <div id="weather-map" class="map-frame"></div>
                 </section>
             </div>
         </main>
 
-        <!-- City Comparison Section (Toggleable) -->
-        <section class="glass-card compare-section hidden" id="compare-section">
-            <div class="card-header-row">
-                <h2 class="card-title">
+        <!-- City Comparison Modal/Section -->
+        <section class="bubble-card compare-section hidden" id="compare-section" style="margin-top: 1rem;">
+            <div class="card-header-bar">
+                <h2 class="card-heading">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
                     Comparative Meteorological Analysis
                 </h2>
-                <button class="btn-icon" onclick="document.getElementById('compare-section').classList.add('hidden')">&times;</button>
+                <button class="tactile-btn-icon" onclick="document.getElementById('compare-section').classList.add('hidden')">&times;</button>
             </div>
-            <div class="dashboard-grid compare-grid" id="compare-container">
-                <!-- Populated dynamically by compare.js -->
-            </div>
+            <div class="bento-grid compare-grid" id="compare-container"></div>
         </section>
 
-        <!-- Saved Locations & Search History Sidebar Drawer -->
+        <!-- Favorites & History Sidebar -->
         <aside class="app-sidebar" id="sidebar">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-                <h3 class="card-title" style="font-size: 1rem; color: var(--text-primary);">Saved Locations</h3>
-                <button class="btn-icon" id="sidebar-close">&times;</button>
+                <h3 class="card-heading" style="font-size: 1rem; color: var(--color-ink);">Saved Locations</h3>
+                <button class="tactile-btn-icon" id="sidebar-close">&times;</button>
             </div>
             
-            <div class="favorites-list" id="favorites-list">
-                <!-- Favorite chips injected via JS -->
-            </div>
+            <div class="favorites-list" id="favorites-list"></div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; margin-bottom: 1rem;">
-                <h3 class="card-title">Recent Searches</h3>
-                <button id="clear-history-btn" style="font-size: 0.75rem; color: var(--text-tertiary); cursor: pointer;">Clear</button>
+                <h3 class="card-heading">Recent Searches</h3>
+                <button id="clear-history-btn" class="tactile-btn" style="font-size: 0.75rem; padding: 2px 8px;">Clear</button>
             </div>
-            <div class="history-list" id="history-list">
-                <!-- History items injected via JS -->
-            </div>
+            <div class="history-list" id="history-list"></div>
         </aside>
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -334,12 +325,12 @@
         <div class="toast-container" id="toast-container"></div>
 
         <!-- Footer -->
-        <footer style="margin-top: 2rem; padding: 1.5rem; text-align: center; border-top: 1px solid var(--border-subtle); color: var(--text-tertiary); font-size: 0.825rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
-            <div>Powered by <strong>Open-Meteo API</strong> · High-Resolution Meteorological Data</div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
+        <footer style="margin-top: 2rem; padding: 1.5rem 0; text-align: center; border-top: 1px solid var(--color-border); color: var(--color-ink-secondary); font-size: 0.825rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+            <div>Atmospheric data provided by <strong>Open-Meteo API</strong></div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <span id="refresh-indicator" class="auto-refresh-indicator"></span>
-                <button id="refresh-btn" class="city-pill" style="padding: 3px 10px;">↻ Refresh</button>
-                <button id="install-btn" class="city-pill hidden" style="border-color: var(--accent-sky); color: var(--accent-sky);">Install PWA</button>
+                <button id="refresh-btn" class="tactile-btn" style="padding: 4px 10px;">↻ Refresh</button>
+                <button id="install-btn" class="tactile-btn hidden">Install App</button>
             </div>
         </footer>
     </div>
