@@ -1,6 +1,6 @@
 /**
  * Atmos AI / SkyMind Client-Side Assistant Orchestrator
- * Fully dynamic meteorological intelligence powered by real-time telemetry, live search, and Google Gemini.
+ * Fully dynamic meteorological intelligence powered by real-time telemetry, live search across all Indian cities & states, and Google Gemini.
  */
 
 import { searchCities, fetchWeather } from '../api.js';
@@ -11,7 +11,7 @@ import { getWeatherDescription } from '../utils.js';
 export async function askAtmosAI(question, currentCityName, currentData, hourlyData = [], dailyData = null) {
     const q = question.toLowerCase().trim();
 
-    // 1. Check if the user is asking about a specific city/location (e.g., Delhi, Odisha, Mumbai, London, etc.)
+    // 1. Detect target location in query (any Indian city, district, state or international city)
     let targetCity = currentCityName;
     let targetCurrent = currentData;
     let targetHourly = hourlyData;
@@ -23,12 +23,11 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
             const searchRes = await searchCities(detectedLocation, 1);
             if (searchRes && searchRes.results && searchRes.results.length > 0) {
                 const loc = searchRes.results[0];
-                targetCity = `${loc.name}, ${loc.country || ''}`;
+                targetCity = loc.name.includes(loc.country || '') ? loc.name : `${loc.name}, ${loc.country || 'India'}`;
                 const weatherRes = await fetchWeather(loc.latitude, loc.longitude);
                 if (weatherRes && weatherRes.current && weatherRes.daily) {
                     targetCurrent = weatherRes.current;
                     targetDaily = weatherRes.daily;
-                    // Format hourly
                     const h = weatherRes.hourly || {};
                     targetHourly = (h.time || []).slice(0, 24).map((t, idx) => ({
                         time: new Date(t).toLocaleTimeString([], { hour: 'numeric', hour12: true }),
@@ -50,7 +49,7 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
     const uv = targetCurrent?.uv_index ?? 3;
     const aqi = targetCurrent?.aqi ?? 35;
 
-    // 2. Try Backend API with full target location telemetry
+    // 2. Try Backend API if full-stack is running
     try {
         const resp = await fetch('/api/ai/ask', {
             method: 'POST',
@@ -67,9 +66,7 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
             const data = await resp.json();
             if (data && data.answer) return data;
         }
-    } catch (e) {
-        // Backend offline / static hosting, proceed with client-side real-time engine
-    }
+    } catch (e) {}
 
     // 3. Match Date Horizon in Target Forecast (e.g. 16 August, tomorrow, Sunday, etc.)
     const dateMatch = matchDateInForecast(question, targetDaily);
@@ -213,24 +210,42 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
 }
 
 /**
- * Extracts candidate location name from natural query.
+ * Extracts candidate location name from natural query (city, town, district, state).
  */
-function extractLocationFromQuery(query, fallbackCity) {
+export function extractLocationFromQuery(query, fallbackCity) {
     const q = query.trim();
-    // Patterns: "in Delhi", "at Odisha", "for London", "in new york", "in Tokyo on 16 august"
-    const match = q.match(/(?:in|at|for|of|near)\s+([a-zA-Z\s]+?)(?:\?|\s+on\s+|\s+at\s+|\s+tomorrow|\s+today|\s+this|\s*$)/i);
-    if (match && match[1]) {
-        const candidate = match[1].trim();
+
+    // Pattern 1: Prepositional match "in Delhi", "at Odisha", "for Pune", "near Alandi", "in Mumbai on 16 august"
+    const prepMatch = q.match(/(?:in|at|for|of|near)\s+([a-zA-Z\s]+?)(?:\?|\s+on\s+|\s+at\s+|\s+tomorrow|\s+today|\s+this|\s+next|\s*$)/i);
+    if (prepMatch && prepMatch[1]) {
+        const candidate = prepMatch[1].trim();
         const ignore = [
             'the morning', 'the evening', 'the afternoon', 'the night', 'tomorrow', 'today',
             'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
             'august', 'september', 'october', 'november', 'december', 'january', 'february', 'march', 'april', 'may', 'june', 'july',
-            'celsius', 'fahrenheit', 'outdoor', 'indoor'
+            'celsius', 'fahrenheit', 'outdoor', 'indoor', 'the weekend', 'the week', 'the day'
         ];
         if (!ignore.includes(candidate.toLowerCase()) && candidate.length >= 2) {
             return candidate;
         }
     }
+
+    // Pattern 2: Direct word scan for city name tokens
+    const words = q.replace(/[?,.!]/g, '').split(/\s+/);
+    const stopWords = [
+        'will', 'it', 'rain', 'is', 'there', 'any', 'weather', 'forecast', 'temperature', 'temp',
+        'today', 'tomorrow', 'tonight', 'on', 'at', 'in', 'for', 'the', 'what', 'how', 'should',
+        'i', 'wear', 'run', 'best', 'time', 'to', 'can', 'go', 'umbrella', 'jacket', 'good', 'bad',
+        'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
+        'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+    ];
+
+    for (const w of words) {
+        if (!stopWords.includes(w.toLowerCase()) && w.length >= 3 && !/^\d+$/.test(w)) {
+            return w;
+        }
+    }
+
     return null;
 }
 
