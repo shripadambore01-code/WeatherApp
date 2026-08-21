@@ -1,63 +1,85 @@
+/**
+ * Atmos Weather — Interactive Map Module
+ * Leaflet.js integration for radar and location mapping with auto-initialization and responsive resizing.
+ */
+
 let map = null;
 let marker = null;
-let layerControl = null;
 
 export function initMap() {
+    if (!window.L) return null;
+    
+    const container = document.getElementById('weather-map');
+    if (!container) return null;
+    
+    if (map) {
+        map.invalidateSize();
+        return map;
+    }
+
+    try {
+        // Initialize map
+        map = L.map('weather-map', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([18.5204, 73.8567], 10);
+        
+        // High performance dark/light styled tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 300);
+
+        return map;
+    } catch (e) {
+        console.warn('Map initialization note:', e);
+        return null;
+    }
+}
+
+export function updateMapCenter(lat, lon, cityName = '', temp = '') {
     if (!window.L) return;
     
     const container = document.getElementById('weather-map');
     if (!container) return;
-    
-    // Default to a global view if no location yet
-    map = L.map('weather-map').setView([20, 0], 2);
-    
-    const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    });
-    baseLayer.addTo(map);
-    
-    // Example weather layers (using OpenWeatherMap for demonstration, requires API key in reality, 
-    // but here we just set up the structure)
-    // If you have a specific tile server, replace URLs
-    const tempLayer = L.tileLayer('https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY');
-    const precipLayer = L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY');
-    const cloudLayer = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY');
-    const windLayer = L.tileLayer('https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY');
-    
-    const overlayMaps = {
-        "Temperature": tempLayer,
-        "Precipitation": precipLayer,
-        "Clouds": cloudLayer,
-        "Wind": windLayer
-    };
-    
-    layerControl = L.control.layers({"Base": baseLayer}, overlayMaps).addTo(map);
-    
-    // Fix map rendering issues inside hidden containers
-    setTimeout(() => { map.invalidateSize(); }, 500);
-}
 
-export function updateMapCenter(lat, lon, cityName = '', temp = '') {
-    if (!map) return;
-    
-    map.setView([lat, lon], 10);
-    
-    if (marker) {
-        marker.setLatLng([lat, lon]);
-    } else {
-        marker = L.marker([lat, lon]).addTo(map);
+    if (!map) {
+        initMap();
     }
     
-    if (cityName || temp) {
-        marker.bindPopup(`<b>${cityName}</b><br>${temp}`).openPopup();
+    if (!map) return;
+
+    try {
+        map.setView([lat, lon], 11);
+        
+        if (marker) {
+            marker.setLatLng([lat, lon]);
+        } else {
+            marker = L.marker([lat, lon]).addTo(map);
+        }
+        
+        if (cityName) {
+            marker.bindPopup(`<div style="font-family:Inter,sans-serif; font-size:13px; font-weight:700; color:#1e293b;">📍 ${cityName}</div>`).openPopup();
+        }
+
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 200);
+    } catch (e) {
+        console.warn('Map update error:', e);
     }
 }
 
 export function destroyMap() {
     if (map) {
-        map.remove();
+        try {
+            map.remove();
+        } catch (e) {}
         map = null;
         marker = null;
-        layerControl = null;
     }
 }

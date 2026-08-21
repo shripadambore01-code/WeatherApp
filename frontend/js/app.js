@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initVoice();
         initCompare();
         initPWA();
+        initMap();
         await initI18n();
 
         // Setup intelligence event handlers

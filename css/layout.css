@@ -16,13 +16,15 @@
 .bubble-header {
     position: sticky;
     top: 1rem;
-    z-index: 100;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     padding: 0.75rem 1.25rem;
     background: var(--color-surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-bubble);

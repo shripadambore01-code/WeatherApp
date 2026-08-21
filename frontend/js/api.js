@@ -51,7 +51,9 @@ export const INDIAN_STATES = {
     'puducherry': { name: 'Puducherry', state: 'Puducherry', country: 'India', latitude: 11.9416, longitude: 79.8083, timezone: 'Asia/Kolkata' },
     'pondicherry': { name: 'Puducherry', state: 'Puducherry', country: 'India', latitude: 11.9416, longitude: 79.8083, timezone: 'Asia/Kolkata' },
     'andaman and nicobar': { name: 'Port Blair', state: 'Andaman & Nicobar', country: 'India', latitude: 11.6234, longitude: 92.7265, timezone: 'Asia/Kolkata' },
-    'lakshadweep': { name: 'Kavaratti', state: 'Lakshadweep', country: 'India', latitude: 10.5667, longitude: 72.6417, timezone: 'Asia/Kolkata' }
+    'lakshadweep': { name: 'Kavaratti', state: 'Lakshadweep', country: 'India', latitude: 10.5667, longitude: 72.6417, timezone: 'Asia/Kolkata' },
+    'alandi': { name: 'Alandi', state: 'Maharashtra', country: 'India', latitude: 18.6774, longitude: 73.8967, timezone: 'Asia/Kolkata' },
+    'pune': { name: 'Pune', state: 'Maharashtra', country: 'India', latitude: 18.5204, longitude: 73.8567, timezone: 'Asia/Kolkata' }
 };
 
 async function fetchWithTimeout(url) {

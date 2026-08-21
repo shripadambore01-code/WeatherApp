@@ -1,22 +1,29 @@
 /**
  * Atmos Weather — Charts Module
- * ApexCharts integration for temperature and humidity trends
+ * ApexCharts integration for thermal rhythm and precipitation trends.
  */
 
 let tempChart = null;
-let humidityChart = null;
 
 /**
- * Initialize weather trend charts
+ * Initialize weather trend charts with auto-retry
  * @param {Object} hourlyData - Open-Meteo hourly data object
  * @param {boolean} isDark - Whether dark theme is active
  */
 export function initCharts(hourlyData, isDark = false) {
-    if (!hourlyData || !hourlyData.time || typeof ApexCharts === 'undefined') return;
+    if (!hourlyData || !hourlyData.time) return;
+
+    if (typeof ApexCharts === 'undefined') {
+        setTimeout(() => initCharts(hourlyData, isDark), 300);
+        return;
+    }
+
+    const tempContainer = document.getElementById('temp-chart');
+    if (!tempContainer) return;
 
     destroyCharts();
 
-    // Get next 48 hours of data
+    // Get next 24-36 hours of hourly forecast
     const now = new Date();
     let startIdx = 0;
     for (let i = 0; i < hourlyData.time.length; i++) {
@@ -25,11 +32,10 @@ export function initCharts(hourlyData, isDark = false) {
             break;
         }
     }
-    const endIdx = Math.min(startIdx + 48, hourlyData.time.length);
+    const endIdx = Math.min(startIdx + 24, hourlyData.time.length);
 
     const times = hourlyData.time.slice(startIdx, endIdx);
     const temps = (hourlyData.temperature_2m || []).slice(startIdx, endIdx);
-    const humidity = (hourlyData.relative_humidity_2m || []).slice(startIdx, endIdx);
     const precip = (hourlyData.precipitation_probability || []).slice(startIdx, endIdx);
 
     const labels = times.map(t => {
@@ -39,13 +45,11 @@ export function initCharts(hourlyData, isDark = false) {
 
     const colors = getChartColors(isDark);
 
-    // Temperature chart
-    const tempContainer = document.getElementById('temp-chart');
-    if (tempContainer) {
+    try {
         tempChart = new ApexCharts(tempContainer, {
             chart: {
                 type: 'area',
-                height: 260,
+                height: 240,
                 fontFamily: 'Inter, sans-serif',
                 toolbar: { show: false },
                 zoom: { enabled: false },
@@ -53,7 +57,7 @@ export function initCharts(hourlyData, isDark = false) {
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 800
+                    speed: 600
                 }
             },
             series: [
@@ -63,31 +67,27 @@ export function initCharts(hourlyData, isDark = false) {
                 },
                 {
                     name: 'Precipitation %',
-                    data: precip
+                    data: precip.map(p => Math.round(p))
                 }
             ],
             xaxis: {
                 categories: labels,
                 labels: {
-                    style: { colors: colors.text, fontSize: '11px' },
-                    rotate: -45,
-                    rotateAlways: false,
-                    hideOverlappingLabels: true,
-                    showDuplicates: false,
-                    trim: true
+                    style: { colors: colors.text, fontSize: '11px', fontWeight: 600 },
+                    rotate: 0,
+                    hideOverlappingLabels: true
                 },
-                tickAmount: 12,
                 axisBorder: { show: false },
                 axisTicks: { show: false }
             },
             yaxis: [
                 {
-                    title: { text: 'Temperature (°C)', style: { color: colors.text, fontSize: '12px' } },
+                    title: { text: 'Temp (°C)', style: { color: colors.text, fontSize: '11px', fontWeight: 600 } },
                     labels: { style: { colors: colors.text }, formatter: v => `${Math.round(v)}°` }
                 },
                 {
                     opposite: true,
-                    title: { text: 'Precipitation %', style: { color: colors.text, fontSize: '12px' } },
+                    title: { text: 'Rain %', style: { color: colors.text, fontSize: '11px', fontWeight: 600 } },
                     labels: { style: { colors: colors.text }, formatter: v => `${Math.round(v)}%` },
                     max: 100,
                     min: 0
@@ -98,16 +98,16 @@ export function initCharts(hourlyData, isDark = false) {
                 type: ['gradient', 'solid'],
                 gradient: {
                     shadeIntensity: 1,
-                    opacityFrom: 0.4,
+                    opacityFrom: 0.35,
                     opacityTo: 0.05,
                     stops: [0, 100]
                 },
-                opacity: [1, 0.3]
+                opacity: [1, 0.2]
             },
             stroke: {
                 curve: 'smooth',
                 width: [3, 2],
-                dashArray: [0, 4]
+                dashArray: [0, 3]
             },
             grid: {
                 borderColor: colors.grid,
@@ -119,7 +119,7 @@ export function initCharts(hourlyData, isDark = false) {
                 theme: isDark ? 'dark' : 'light',
                 shared: true,
                 intersect: false,
-                style: { fontSize: '13px', fontFamily: 'Inter' },
+                style: { fontSize: '12px', fontFamily: 'Inter' },
                 y: {
                     formatter: (val, { seriesIndex }) =>
                         seriesIndex === 0 ? `${val}°C` : `${val}%`
@@ -130,12 +130,16 @@ export function initCharts(hourlyData, isDark = false) {
                 position: 'top',
                 horizontalAlign: 'right',
                 fontSize: '12px',
-                fontFamily: 'Inter'
+                fontFamily: 'Inter',
+                fontWeight: 600
             },
             dataLabels: { enabled: false },
-            markers: { size: 0, hover: { size: 5 } }
+            markers: { size: 0, hover: { size: 4 } }
         });
+
         tempChart.render();
+    } catch (e) {
+        console.warn('Chart render error:', e);
     }
 }
 
@@ -145,44 +149,36 @@ export function initCharts(hourlyData, isDark = false) {
  */
 export function updateChartsTheme(isDark) {
     const colors = getChartColors(isDark);
-
-    [tempChart, humidityChart].forEach(chart => {
-        if (chart) {
-            chart.updateOptions({
+    if (tempChart) {
+        try {
+            tempChart.updateOptions({
                 chart: { foreColor: colors.text },
                 grid: { borderColor: colors.grid },
                 tooltip: { theme: isDark ? 'dark' : 'light' },
                 xaxis: { labels: { style: { colors: colors.text } } },
                 legend: { labels: { colors: colors.text } }
             });
-        }
-    });
+        } catch (e) {}
+    }
 }
 
 /**
- * Destroy all charts (cleanup)
+ * Destroy charts (cleanup)
  */
 export function destroyCharts() {
     if (tempChart) {
-        tempChart.destroy();
+        try {
+            tempChart.destroy();
+        } catch (e) {}
         tempChart = null;
-    }
-    if (humidityChart) {
-        humidityChart.destroy();
-        humidityChart = null;
     }
 }
 
-/**
- * Get chart colors based on theme
- * @param {boolean} isDark
- * @returns {Object} Color set
- */
 function getChartColors(isDark) {
     return {
-        text: isDark ? '#b0bec5' : '#546e7a',
+        text: isDark ? '#94a3b8' : '#64748b',
         grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-        accent: isDark ? '#4fc3f7' : '#0288d1',
-        secondary: isDark ? '#90caf9' : '#64b5f6'
+        accent: isDark ? '#f59e0b' : '#d97706',
+        secondary: isDark ? '#38bdf8' : '#0284c7'
     };
 }

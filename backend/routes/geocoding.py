@@ -18,7 +18,9 @@ INDIAN_STATES = {
     'punjab': {'name': 'Chandigarh', 'state': 'Punjab', 'country': 'India', 'latitude': 30.7333, 'longitude': 76.7794, 'timezone': 'Asia/Kolkata'},
     'delhi': {'name': 'New Delhi', 'state': 'Delhi', 'country': 'India', 'latitude': 28.6139, 'longitude': 77.2090, 'timezone': 'Asia/Kolkata'},
     'jammu and kashmir': {'name': 'Srinagar', 'state': 'Jammu & Kashmir', 'country': 'India', 'latitude': 34.0837, 'longitude': 74.7973, 'timezone': 'Asia/Kolkata'},
-    'ladakh': {'name': 'Leh', 'state': 'Ladakh', 'country': 'India', 'latitude': 34.1526, 'longitude': 77.5771, 'timezone': 'Asia/Kolkata'}
+    'ladakh': {'name': 'Leh', 'state': 'Ladakh', 'country': 'India', 'latitude': 34.1526, 'longitude': 77.5771, 'timezone': 'Asia/Kolkata'},
+    'alandi': {'name': 'Alandi', 'state': 'Maharashtra', 'country': 'India', 'latitude': 18.6774, 'longitude': 73.8967, 'timezone': 'Asia/Kolkata'},
+    'pune': {'name': 'Pune', 'state': 'Maharashtra', 'country': 'India', 'latitude': 18.5204, 'longitude': 73.8567, 'timezone': 'Asia/Kolkata'}
 }
 
 @router.get("/geocode")
