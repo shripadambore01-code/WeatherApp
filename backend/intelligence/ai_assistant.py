@@ -29,83 +29,71 @@ def ask_atmos_ai(
     uv = current_data.get("uv_index", 3.0)
     aqi = current_data.get("aqi", 35.0)
 
-    # 1. Match specific Date or Horizon in Daily Data
-    matched_idx = None
-    date_label = ""
+    # 1. Resolve Date Horizon in Daily Data
+    date_resolution = resolve_date_query(q, daily_data)
 
-    if daily_data and "time" in daily_data and len(daily_data["time"]) > 0:
-        times = daily_data["time"]
+    if date_resolution:
+        if date_resolution.get("is_past"):
+            today_code = daily_data.get("weather_code", [0])[0] if daily_data else 0
+            today_desc = get_weather_info(today_code).get("description", "Clear Skies")
+            tomorrow_rain = daily_data.get("precipitation_probability_max", [0, 0])[1] if daily_data and len(daily_data.get("precipitation_probability_max", [])) > 1 else 0
+            tomorrow_date = daily_data.get("time", ["", "Next Day"])[1] if daily_data and len(daily_data.get("time", [])) > 1 else "Tomorrow"
 
-        # Check for tomorrow / next day
-        if any(k in q for k in ["tomorrow", "next day", "day after"]):
-            matched_idx = min(1, len(times) - 1)
-            date_label = "Tomorrow"
-        elif any(k in q for k in ["today", "now"]):
-            matched_idx = 0
-            date_label = "Today"
-        else:
-            # Check numerical date or month (e.g., "16 august", "17 aug", "16th")
-            months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
-            short_months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+            return {
+                "question": question,
+                "city": city_name,
+                "answer": f"{date_resolution['label']} has already passed. For today in {city_name}, current conditions are {round(temp)}°C with {today_desc} and {round(rain_p)}% rain risk. Tomorrow ({tomorrow_date}), rain probability is {round(tomorrow_rain)}%.",
+                "tool_called": "daily_forecast.past_date_detector",
+                "confidence": "High",
+                "verified_metrics": {
+                    "location": city_name,
+                    "requested_date": date_resolution["label"],
+                    "current_temp": f"{round(temp)}°C",
+                    "today_rain_probability": f"{round(rain_p)}%"
+                },
+                "reasons": [f"Recognized that {date_resolution['label']} is in the past; provided active telemetry for {city_name}"]
+            }
 
-            for i, iso in enumerate(times):
-                try:
-                    dt = datetime.fromisoformat(iso)
-                    d_num = str(dt.day)
-                    m_name = months[dt.month - 1]
-                    s_m = short_months[dt.month - 1]
+        matched_idx = date_resolution.get("matched_index")
+        if matched_idx is not None and daily_data:
+            t_date = daily_data["time"][matched_idx]
+            t_code = daily_data.get("weather_code", [0] * len(daily_data["time"]))[matched_idx]
+            t_desc = get_weather_info(t_code).get("description", "Variable Clouds")
+            t_max = daily_data.get("temperature_2m_max", [20] * len(daily_data["time"]))[matched_idx]
+            t_min = daily_data.get("temperature_2m_min", [15] * len(daily_data["time"]))[matched_idx]
+            t_rain_prob = daily_data.get("precipitation_probability_max", [0] * len(daily_data["time"]))[matched_idx]
+            t_rain_sum = daily_data.get("rain_sum", [0] * len(daily_data["time"]))[matched_idx] if "rain_sum" in daily_data else 0
 
-                    if (
-                        f"{d_num} {m_name}" in q or f"{m_name} {d_num}" in q or
-                        f"{d_num}th {m_name}" in q or f"{d_num}th" in q or
-                        f"{d_num} {s_m}" in q or f"{s_m} {d_num}" in q or
-                        iso in q or d_num in q
-                    ):
-                        matched_idx = i
-                        date_label = f"{d_num} {m_name.capitalize()}"
-                        break
-                except Exception:
-                    pass
+            tool_used = "daily_forecast.date_matched_telemetry"
+            confidence = "High"
+            date_label = date_resolution["label"]
 
-    # If a specific date horizon was matched in daily forecast
-    if matched_idx is not None and daily_data:
-        t_date = daily_data["time"][matched_idx]
-        t_code = daily_data.get("weather_code", [0] * len(daily_data["time"]))[matched_idx]
-        t_desc = get_weather_info(t_code).get("description", "Variable Clouds")
-        t_max = daily_data.get("temperature_2m_max", [20] * len(daily_data["time"]))[matched_idx]
-        t_min = daily_data.get("temperature_2m_min", [15] * len(daily_data["time"]))[matched_idx]
-        t_rain_prob = daily_data.get("precipitation_probability_max", [0] * len(daily_data["time"]))[matched_idx]
-        t_rain_sum = daily_data.get("rain_sum", [0] * len(daily_data["time"]))[matched_idx] if "rain_sum" in daily_data else 0
-
-        tool_used = "daily_forecast.date_matched_telemetry"
-        confidence = "High"
-
-        if any(k in q for k in ["rain", "umbrella", "shower", "wet", "precipitation"]):
-            if t_rain_prob >= 50 or t_rain_sum > 1.0:
-                answer = f"Yes, rain is expected in {city_name} on {date_label} ({t_date}) with {t_desc}. The rain probability is {round(t_rain_prob)}% with highs of {round(t_max)}°C and lows of {round(t_min)}°C. Carrying an umbrella is advised."
-            elif t_rain_prob >= 25:
-                answer = f"On {date_label} in {city_name}, there is a moderate chance of light rain ({round(t_rain_prob)}%) with {t_desc} (High: {round(t_max)}°C, Low: {round(t_min)}°C)."
+            if any(k in q for k in ["rain", "umbrella", "shower", "wet", "precipitation"]):
+                if t_rain_prob >= 50 or t_rain_sum > 1.0:
+                    answer = f"Yes, rain is expected in {city_name} on {date_label} ({t_date}) with {t_desc}. The rain probability is {round(t_rain_prob)}% with highs of {round(t_max)}°C and lows of {round(t_min)}°C. Carrying an umbrella is advised."
+                elif t_rain_prob >= 25:
+                    answer = f"On {date_label} in {city_name}, there is a moderate chance of light rain ({round(t_rain_prob)}%) with {t_desc} (High: {round(t_max)}°C, Low: {round(t_min)}°C)."
+                else:
+                    answer = f"No significant rain is expected in {city_name} on {date_label} ({t_date}). Conditions look dry with {t_desc}, a rain probability of only {round(t_rain_prob)}%, and highs reaching {round(t_max)}°C."
             else:
-                answer = f"No significant rain is expected in {city_name} on {date_label} ({t_date}). Conditions look dry with {t_desc}, a rain probability of only {round(t_rain_prob)}%, and highs reaching {round(t_max)}°C."
-        else:
-            answer = f"Weather forecast for {city_name} on {date_label} ({t_date}): Expect {t_desc} with a maximum temperature of {round(t_max)}°C and a minimum of {round(t_min)}°C. Rain probability is {round(t_rain_prob)}%."
+                answer = f"Weather forecast for {city_name} on {date_label} ({t_date}): Expect {t_desc} with a maximum temperature of {round(t_max)}°C and a minimum of {round(t_min)}°C. Rain probability is {round(t_rain_prob)}%."
 
-        return {
-            "question": question,
-            "city": city_name,
-            "answer": answer,
-            "tool_called": tool_used,
-            "confidence": confidence,
-            "verified_metrics": {
-                "forecast_horizon": date_label,
-                "date": t_date,
-                "condition": t_desc,
-                "high_temperature": f"{round(t_max)}°C",
-                "low_temperature": f"{round(t_min)}°C",
-                "rain_probability": f"{round(t_rain_prob)}%"
-            },
-            "reasons": [f"Queried forecast for {city_name} on {t_date}"]
-        }
+            return {
+                "question": question,
+                "city": city_name,
+                "answer": answer,
+                "tool_called": tool_used,
+                "confidence": confidence,
+                "verified_metrics": {
+                    "forecast_horizon": date_label,
+                    "date": t_date,
+                    "condition": t_desc,
+                    "high_temperature": f"{round(t_max)}°C",
+                    "low_temperature": f"{round(t_min)}°C",
+                    "rain_probability": f"{round(t_rain_prob)}%"
+                },
+                "reasons": [f"Queried forecast for {city_name} on {t_date}"]
+            }
 
     # 2. Check for Tonight / Later Today
     is_tonight = any(k in q for k in ["tonight", "evening", "later", "afternoon", "morning", "night"])
@@ -142,13 +130,13 @@ def ask_atmos_ai(
     # 3. Rain & Umbrella (Current)
     if any(k in q for k in ["rain", "umbrella", "shower", "wet", "downpour"]):
         if rain_p >= 50:
-            answer = f"Yes, carry an umbrella in {city_name}. Rain probability is elevated at {round(rain_p)}%."
+            answer = f"Yes, carry an umbrella in {city_name}. Rain probability is elevated at {round(rain_p)}% with temperatures around {round(temp)}°C."
             confidence = "High"
         elif rain_p >= 25:
             answer = f"A light rain risk ({round(rain_p)}%) is present in {city_name}. Keeping a compact umbrella handy is advised."
             confidence = "Medium"
         else:
-            answer = f"No umbrella needed currently in {city_name}. Rain probability is only {round(rain_p)}% with dry skies."
+            answer = f"No umbrella needed currently in {city_name}. Rain probability is only {round(rain_p)}% with dry skies and temperature at {round(temp)}°C."
             confidence = "High"
 
         return {
@@ -196,3 +184,63 @@ def ask_atmos_ai(
         },
         "reasons": score_res["reasons"]
     }
+
+
+def resolve_date_query(query: str, daily_data: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    q = query.lower()
+
+    if "tomorrow" in q or "next day" in q:
+        return {"matched_index": 1, "label": "Tomorrow", "is_past": False}
+    if "today" in q or "now" in q:
+        return {"matched_index": 0, "label": "Today", "is_past": False}
+    if "day after tomorrow" in q:
+        return {"matched_index": 2, "label": "Day after tomorrow", "is_past": False}
+
+    months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+    short_months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    # Extract date pattern
+    target_day = None
+    target_month = None
+
+    match1 = re.search(r'(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]+)', q)
+    match2 = re.search(r'([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?', q)
+    match = match1 or match2
+
+    if match:
+        p1, p2 = match.groups()
+        day_str = p1 if p1.isdigit() else p2
+        month_str = p2 if p1.isdigit() else p1
+
+        if month_str in months:
+            target_month = months.index(month_str)
+            target_day = int(day_str)
+        elif month_str in short_months:
+            target_month = short_months.index(month_str)
+            target_day = int(day_str)
+
+    if daily_data and "time" in daily_data and len(daily_data["time"]) > 0:
+        times = daily_data["time"]
+        today_iso = times[0]
+        try:
+            today_dt = datetime.fromisoformat(today_iso)
+            today_day = today_dt.day
+            today_month = today_dt.month - 1
+
+            if target_day is not None and target_month is not None:
+                month_name = months[target_month].capitalize()
+                date_label = f"{target_day} {month_name}"
+
+                for i, iso in enumerate(times):
+                    dt = datetime.fromisoformat(iso)
+                    if dt.day == target_day and (dt.month - 1) == target_month:
+                        return {"matched_index": i, "label": date_label, "is_past": False}
+
+                if target_month < today_month or (target_month == today_month and target_day < today_day):
+                    return {"matched_index": None, "label": date_label, "is_past": True}
+
+                return {"matched_index": len(times) - 1, "label": date_label, "is_past": False}
+        except Exception:
+            pass
+
+    return None

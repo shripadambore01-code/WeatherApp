@@ -68,48 +68,74 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
         }
     } catch (e) {}
 
-    // 3. Match Date Horizon in Target Forecast (e.g. 16 August, tomorrow, Sunday, etc.)
-    const dateMatch = matchDateInForecast(question, targetDaily);
+    // 3. Match Date Horizon in Target Forecast (Today, Tomorrow, Specific Dates, Past Dates)
+    const dateResolution = resolveDateQuery(question, targetDaily);
 
-    if (dateMatch && targetDaily && targetDaily.time) {
-        const idx = dateMatch.index;
-        const matchedDate = targetDaily.time[idx];
-        const code = targetDaily.weather_code ? targetDaily.weather_code[idx] : 0;
-        const desc = getWeatherDescription(code);
-        const maxT = targetDaily.temperature_2m_max ? targetDaily.temperature_2m_max[idx] : temp;
-        const minT = targetDaily.temperature_2m_min ? targetDaily.temperature_2m_min[idx] : temp - 4;
-        const rainProb = targetDaily.precipitation_probability_max ? targetDaily.precipitation_probability_max[idx] : (targetDaily.rain_sum ? (targetDaily.rain_sum[idx] > 0 ? 80 : 10) : 0);
-        const rainSum = targetDaily.rain_sum ? targetDaily.rain_sum[idx] : 0;
-
-        let answer = '';
-        if (q.includes('rain') || q.includes('umbrella') || q.includes('shower') || q.includes('precipitation')) {
-            if (rainProb >= 50 || rainSum > 1.0) {
-                answer = `Yes, rain is expected in ${targetCity} on ${dateMatch.label} (${matchedDate}) with ${desc}. The rain probability is ${Math.round(rainProb)}% (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C). Carrying an umbrella is advised.`;
-            } else if (rainProb >= 25) {
-                answer = `There is a moderate ${Math.round(rainProb)}% chance of light rain or showers in ${targetCity} on ${dateMatch.label} with ${desc} (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C).`;
-            } else {
-                answer = `No significant rain is expected in ${targetCity} on ${dateMatch.label} (${matchedDate}). Conditions look dry with ${desc}, a rain probability of only ${Math.round(rainProb)}%, and highs reaching ${Math.round(maxT)}°C.`;
-            }
-        } else {
-            answer = `Weather forecast for ${targetCity} on ${dateMatch.label} (${matchedDate}): Expect ${desc} with a maximum temperature of ${Math.round(maxT)}°C and a minimum of ${Math.round(minT)}°C. Rain probability is ${Math.round(rainProb)}%.`;
+    if (dateResolution) {
+        if (dateResolution.isPast) {
+            // User asked about a date in the past
+            const todayCode = targetDaily?.weather_code ? targetDaily.weather_code[0] : 0;
+            const todayDesc = getWeatherDescription(todayCode);
+            const tomorrowCode = targetDaily?.weather_code ? targetDaily.weather_code[1] : 0;
+            const tomorrowDesc = getWeatherDescription(tomorrowCode);
+            const tomorrowRain = targetDaily?.precipitation_probability_max ? targetDaily.precipitation_probability_max[1] : 0;
+            
+            return {
+                question,
+                city: targetCity,
+                answer: `${dateResolution.label} has already passed. For today in ${targetCity}, current conditions are ${Math.round(temp)}°C with ${todayDesc} and ${Math.round(rain_p)}% rain risk. Tomorrow (${targetDaily?.time?.[1] || 'Next Day'}), expect ${tomorrowDesc} with ${Math.round(tomorrowRain)}% rain probability.`,
+                tool_called: 'daily_forecast.past_date_detector',
+                confidence: 'High',
+                verified_metrics: {
+                    location: targetCity,
+                    requested_date: dateResolution.label,
+                    current_temp: `${Math.round(temp)}°C`,
+                    today_rain_probability: `${Math.round(rain_p)}%`
+                },
+                reasons: [`Identified that ${dateResolution.label} is in the past; provided current & upcoming forecast for ${targetCity}`]
+            };
         }
 
-        return {
-            question,
-            city: targetCity,
-            answer,
-            tool_called: 'daily_forecast.date_matched_search',
-            confidence: 'High',
-            verified_metrics: {
-                location: targetCity,
-                date: matchedDate,
-                condition: desc,
-                max_temp: `${Math.round(maxT)}°C`,
-                min_temp: `${Math.round(minT)}°C`,
-                rain_probability: `${Math.round(rainProb)}%`
-            },
-            reasons: [`Live forecast queried for ${targetCity} on ${matchedDate}`]
-        };
+        if (dateResolution.matchedIndex !== null && targetDaily && targetDaily.time) {
+            const idx = dateResolution.matchedIndex;
+            const matchedDate = targetDaily.time[idx];
+            const code = targetDaily.weather_code ? targetDaily.weather_code[idx] : 0;
+            const desc = getWeatherDescription(code);
+            const maxT = targetDaily.temperature_2m_max ? targetDaily.temperature_2m_max[idx] : temp;
+            const minT = targetDaily.temperature_2m_min ? targetDaily.temperature_2m_min[idx] : temp - 4;
+            const rainProb = targetDaily.precipitation_probability_max ? targetDaily.precipitation_probability_max[idx] : (targetDaily.rain_sum ? (targetDaily.rain_sum[idx] > 0 ? 80 : 10) : 0);
+            const rainSum = targetDaily.rain_sum ? targetDaily.rain_sum[idx] : 0;
+
+            let answer = '';
+            if (q.includes('rain') || q.includes('umbrella') || q.includes('shower') || q.includes('precipitation')) {
+                if (rainProb >= 50 || rainSum > 1.0) {
+                    answer = `Yes, rain is expected in ${targetCity} on ${dateResolution.label} (${matchedDate}) with ${desc}. The rain probability is ${Math.round(rainProb)}% (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C). Carrying an umbrella is advised.`;
+                } else if (rainProb >= 25) {
+                    answer = `There is a moderate ${Math.round(rainProb)}% chance of light rain or showers in ${targetCity} on ${dateResolution.label} (${matchedDate}) with ${desc} (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C).`;
+                } else {
+                    answer = `No significant rain is expected in ${targetCity} on ${dateResolution.label} (${matchedDate}). Conditions look dry with ${desc}, a rain probability of only ${Math.round(rainProb)}%, and highs reaching ${Math.round(maxT)}°C.`;
+                }
+            } else {
+                answer = `Weather forecast for ${targetCity} on ${dateResolution.label} (${matchedDate}): Expect ${desc} with a maximum temperature of ${Math.round(maxT)}°C and a minimum of ${Math.round(minT)}°C. Rain probability is ${Math.round(rainProb)}%.`;
+            }
+
+            return {
+                question,
+                city: targetCity,
+                answer,
+                tool_called: 'daily_forecast.date_matched_search',
+                confidence: 'High',
+                verified_metrics: {
+                    location: targetCity,
+                    date: matchedDate,
+                    condition: desc,
+                    max_temp: `${Math.round(maxT)}°C`,
+                    min_temp: `${Math.round(minT)}°C`,
+                    rain_probability: `${Math.round(rainProb)}%`
+                },
+                reasons: [`Live forecast queried for ${targetCity} on ${matchedDate}`]
+            };
+        }
     }
 
     // 4. Check for "Tonight" / "Later Today"
@@ -150,11 +176,11 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
     if (q.includes('rain') || q.includes('umbrella') || q.includes('shower')) {
         let answer = '';
         if (rain_p >= 50) {
-            answer = `Yes, carry an umbrella in ${targetCity}. Current rain probability is elevated at ${Math.round(rain_p)}%.`;
+            answer = `Yes, carry an umbrella in ${targetCity}. Current rain probability is elevated at ${Math.round(rain_p)}% with temperatures around ${Math.round(temp)}°C.`;
         } else if (rain_p >= 25) {
             answer = `A light rain chance (${Math.round(rain_p)}%) is present in ${targetCity}. Keeping a compact umbrella handy is recommended.`;
         } else {
-            answer = `No umbrella needed currently in ${targetCity}. Rain probability is only ${Math.round(rain_p)}% with dry skies.`;
+            answer = `No umbrella needed currently in ${targetCity}. Rain probability is only ${Math.round(rain_p)}% with dry skies and temperature at ${Math.round(temp)}°C.`;
         }
         return {
             question,
@@ -250,55 +276,106 @@ export function extractLocationFromQuery(query, fallbackCity) {
 }
 
 /**
- * Matches target date or day of the week in the 7-day daily forecast.
+ * Resolves natural date queries with past/future detection and 7-day daily forecast matching.
  */
-function matchDateInForecast(query, dailyData) {
-    if (!dailyData || !dailyData.time || !dailyData.time.length) return null;
+function resolveDateQuery(query, dailyData) {
     const q = query.toLowerCase();
 
     if (q.includes('tomorrow') || q.includes('next day')) {
-        return { index: Math.min(1, dailyData.time.length - 1), label: 'Tomorrow' };
+        return { matchedIndex: 1, label: 'Tomorrow', isPast: false };
     }
     if (q.includes('today') || q.includes('now')) {
-        return { index: 0, label: 'Today' };
+        return { matchedIndex: 0, label: 'Today', isPast: false };
+    }
+    if (q.includes('day after tomorrow')) {
+        return { matchedIndex: 2, label: 'Day after tomorrow', isPast: false };
     }
 
     const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
     const shortMonths = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
-    // Check weekday
-    for (const d of days) {
-        if (q.includes(d)) {
-            for (let i = 0; i < dailyData.time.length; i++) {
-                const dayName = new Date(dailyData.time[i]).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-                if (dayName === d) {
-                    return { index: i, label: `${d.charAt(0).toUpperCase() + d.slice(1)} (${dailyData.time[i]})` };
+    // 1. Check weekday
+    if (dailyData && dailyData.time) {
+        for (const d of days) {
+            if (q.includes(d)) {
+                for (let i = 0; i < dailyData.time.length; i++) {
+                    const dayName = new Date(dailyData.time[i]).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                    if (dayName === d) {
+                        return { matchedIndex: i, label: `${d.charAt(0).toUpperCase() + d.slice(1)}`, isPast: false };
+                    }
                 }
             }
         }
     }
 
-    // Check numeric day + month (e.g. "16 august", "august 16", "16th")
-    for (let i = 0; i < dailyData.time.length; i++) {
-        const iso = dailyData.time[i]; // "2026-08-16"
-        const dateObj = new Date(iso);
-        const dayNum = dateObj.getDate();
-        const monthNum = dateObj.getMonth();
-        const monthName = months[monthNum];
-        const shortMonth = shortMonths[monthNum];
+    // 2. Extract day & month pattern from query (e.g. "16 august", "20 august", "aug 21", "22nd august")
+    let targetDay = null;
+    let targetMonth = null;
 
-        if (
-            q.includes(`${dayNum} ${monthName}`) ||
-            q.includes(`${monthName} ${dayNum}`) ||
-            q.includes(`${dayNum}th ${monthName}`) ||
-            q.includes(`${dayNum}th`) ||
-            q.includes(`${dayNum} ${shortMonth}`) ||
-            q.includes(`${shortMonth} ${dayNum}`) ||
-            q.includes(iso) ||
-            q.includes(`${dayNum}`)
-        ) {
-            return { index: i, label: `${dayNum} ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}` };
+    const datePattern = q.match(/(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]+)/i) || q.match(/([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?/i);
+    if (datePattern) {
+        const p1 = datePattern[1];
+        const p2 = datePattern[2];
+        let dayStr = /^\d+$/.test(p1) ? p1 : p2;
+        let monthStr = /^\d+$/.test(p1) ? p2 : p1;
+
+        const mIdx = months.indexOf(monthStr.toLowerCase()) !== -1
+            ? months.indexOf(monthStr.toLowerCase())
+            : shortMonths.indexOf(monthStr.toLowerCase());
+
+        if (mIdx !== -1 && !isNaN(parseInt(dayStr))) {
+            targetDay = parseInt(dayStr);
+            targetMonth = mIdx;
+        }
+    }
+
+    // 3. Match against daily forecast timestamps
+    if (dailyData && dailyData.time && dailyData.time.length > 0) {
+        const todayIso = dailyData.time[0];
+        const todayObj = new Date(todayIso);
+        const todayDay = todayObj.getDate();
+        const todayMonth = todayObj.getMonth();
+
+        // Check if query matched an explicit day/month
+        if (targetDay !== null && targetMonth !== null) {
+            const queryMonthName = months[targetMonth];
+            const dateLabel = `${targetDay} ${queryMonthName.charAt(0).toUpperCase() + queryMonthName.slice(1)}`;
+
+            // Check if it matches any day in forecast array
+            for (let i = 0; i < dailyData.time.length; i++) {
+                const fObj = new Date(dailyData.time[i]);
+                if (fObj.getDate() === targetDay && fObj.getMonth() === targetMonth) {
+                    return { matchedIndex: i, label: dateLabel, isPast: false };
+                }
+            }
+
+            // If not in forecast, check if it is in the past
+            if (targetMonth < todayMonth || (targetMonth === todayMonth && targetDay < todayDay)) {
+                return { matchedIndex: null, label: dateLabel, isPast: true };
+            }
+
+            // If future beyond 7 days
+            return { matchedIndex: dailyData.time.length - 1, label: dateLabel, isPast: false };
+        }
+
+        // Check direct ISO or day string search
+        for (let i = 0; i < dailyData.time.length; i++) {
+            const iso = dailyData.time[i];
+            const fObj = new Date(iso);
+            const dNum = fObj.getDate();
+            const mName = months[fObj.getMonth()];
+            const sName = shortMonths[fObj.getMonth()];
+
+            if (
+                q.includes(`${dNum} ${mName}`) ||
+                q.includes(`${mName} ${dNum}`) ||
+                q.includes(`${dNum}th ${mName}`) ||
+                q.includes(`${dNum} ${sName}`) ||
+                q.includes(iso)
+            ) {
+                return { matchedIndex: i, label: `${dNum} ${mName.charAt(0).toUpperCase() + mName.slice(1)}`, isPast: false };
+            }
         }
     }
 
