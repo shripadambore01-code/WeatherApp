@@ -5,10 +5,12 @@
 
 import { searchCities, fetchWeather } from '../api.js';
 import { calculateWeatherScore } from './weatherScore.js';
-import { scoreHourlyActivity } from './activityEngine.js';
+import { scoreHourlyActivity, evaluateSingleActivity } from './activityEngine.js';
+import { analyzeRainIntelligence } from './rainIntelligence.js';
+import { explainMeteorologicalMetric } from './whyExplainer.js';
 import { getWeatherDescription } from '../utils.js';
 
-export async function askAtmosAI(question, currentCityName, currentData, hourlyData = [], dailyData = null) {
+export async function askAtmosAI(question, currentCityName, currentData, hourlyData = [], dailyData = null, aqiData = null) {
     const q = question.toLowerCase().trim();
 
     // 1. Detect target location in query (any Indian city, district, state or international city)
@@ -42,12 +44,12 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
         }
     }
 
-    const temp = targetCurrent?.temperature_2m ?? 20;
+    const temp = targetCurrent?.temperature_2m ?? 24;
     const app_t = targetCurrent?.apparent_temperature ?? temp;
     const rain_p = targetCurrent?.precipitation_probability ?? 0;
     const wind = targetCurrent?.wind_speed_10m ?? 10;
-    const uv = targetCurrent?.uv_index ?? 3;
-    const aqi = targetCurrent?.aqi ?? 35;
+    const uv = targetCurrent?.uv_index ?? 3.5;
+    const aqi = aqiData?.current?.us_aqi ?? targetCurrent?.aqi ?? 35;
 
     // 2. Try Backend API if full-stack is running
     try {
@@ -68,12 +70,113 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
         }
     } catch (e) {}
 
-    // 3. Match Date Horizon in Target Forecast (Today, Tomorrow, Specific Dates, Past Dates)
+    // 3. Educational "Why?" Explanations
+    if (q.startsWith('why') || q.includes('why is') || q.includes('why does')) {
+        let metricKey = 'general';
+        if (q.includes('humidity') || q.includes('sweat') || q.includes('muggy')) metricKey = 'humidity';
+        else if (q.includes('hotter') || q.includes('colder') || q.includes('feels like') || q.includes('feel')) metricKey = 'feels_like';
+        else if (q.includes('pressure') || q.includes('barometer')) metricKey = 'pressure';
+        else if (q.includes('uv') || q.includes('sun')) metricKey = 'uv';
+        else if (q.includes('rain') || q.includes('precipitation')) metricKey = 'rain';
+        else if (q.includes('aqi') || q.includes('air quality') || q.includes('pollution')) metricKey = 'aqi';
+
+        const exp = explainMeteorologicalMetric(metricKey, targetCurrent, targetHourly, aqiData);
+        return {
+            question,
+            city: targetCity,
+            answer: `${exp.title}\n\n${exp.explanation}\n\n💡 Action: ${exp.action}`,
+            tool_called: 'educational.why_explainer',
+            confidence: 'High',
+            verified_metrics: { metric: exp.keyFactor, location: targetCity }
+        };
+    }
+
+    // 4. Scenario: College / Work Commute (e.g. "I have college from 8 AM to 5 PM. What should I carry?")
+    if (q.includes('college') || q.includes('school') || q.includes('commute') || q.includes('office') || (q.includes('carry') && q.includes('what'))) {
+        const rainInfo = analyzeRainIntelligence(targetHourly, targetCurrent);
+        let carryItems = ['Water bottle'];
+        if (rainInfo.hasRainRisk || rain_p >= 35) carryItems.push('Umbrella / Rain poncho');
+        if (uv >= 6) carryItems.push('Sunglasses / Sunscreen');
+        if (app_t > 30) carryItems.push('Light breathable clothing');
+        else if (app_t < 18) carryItems.push('Light sweater or jacket');
+
+        const answer = `🌤️ **Morning & Commute Outlook for ${targetCity}**:\n` +
+            `• **Conditions**: ${Math.round(temp)}°C (${getWeatherDescription(targetCurrent?.weather_code || 0)})\n` +
+            `• **🎒 Recommended to carry**: ${carryItems.join(', ')}\n` +
+            `• **🌧️ Rain Risk**: ${rainInfo.nextRainWindow} (${rainInfo.peakProbability}% peak)\n` +
+            `• **🚶 Best Outdoor Window**: ${rainInfo.bestOutdoorWindow}\n` +
+            `• **Decision**: ${rainInfo.recommendation}`;
+
+        return {
+            question,
+            city: targetCity,
+            answer,
+            tool_called: 'scenario_engine.commute_planner',
+            confidence: 'High',
+            verified_metrics: { location: targetCity, temperature: `${Math.round(temp)}°C`, rain_peak: `${rainInfo.peakProbability}%` }
+        };
+    }
+
+    // 5. Apparel / Clothing ("What should I wear?")
+    if (q.includes('wear') || q.includes('clothes') || q.includes('outfit') || q.includes('jacket')) {
+        let apparel = '';
+        if (app_t >= 28) {
+            apparel = 'Wear lightweight, breathable cotton or linen fabrics. Keep sunglasses and sunscreen handy due to solar radiance.';
+        } else if (app_t >= 20) {
+            apparel = 'Comfortable casual wear (t-shirt, shirt, jeans). Thermal conditions are balanced.';
+        } else if (app_t >= 14) {
+            apparel = 'Wear a light jacket, hoodie, or long-sleeve layer. Mildly cool breezes are active.';
+        } else {
+            apparel = 'Wear a warm jacket, coat, or layered thermal clothing to protect against chilly temperatures.';
+        }
+        if (rain_p >= 35) apparel += ' Carry an umbrella or waterproof outerwear for rain protection.';
+
+        return {
+            question,
+            city: targetCity,
+            answer: `In ${targetCity} (feels like ${Math.round(app_t)}°C): ${apparel}`,
+            tool_called: 'lifestyle.apparel_advisor',
+            confidence: 'High',
+            verified_metrics: { location: targetCity, feels_like: `${Math.round(app_t)}°C`, rain_risk: `${Math.round(rain_p)}%` }
+        };
+    }
+
+    // 6. Briefing & Weekend Summaries
+    if (q.includes('briefing') || q.includes('summary') || q.includes('morning') || q.includes('weekend')) {
+        const sc = calculateWeatherScore(targetCurrent);
+        const rainInfo = analyzeRainIntelligence(targetHourly, targetCurrent);
+        const desc = getWeatherDescription(targetCurrent?.weather_code || 0);
+
+        let answer = '';
+        if (q.includes('weekend') && targetDaily && targetDaily.time) {
+            const satCode = targetDaily.weather_code?.[1] || 0;
+            const satMax = targetDaily.temperature_2m_max?.[1] || temp;
+            const satRain = targetDaily.precipitation_probability_max?.[1] || 0;
+            answer = `📅 **Weekend Outlook for ${targetCity}**:\n` +
+                `Expect ${getWeatherDescription(satCode)} with highs around ${Math.round(satMax)}°C. Rain probability is ${Math.round(satRain)}%. Overall outdoor suitability is ${satRain < 35 ? 'Good' : 'Moderate'}.`;
+        } else {
+            answer = `🌅 **Atmos Meteorological Briefing for ${targetCity}**:\n` +
+                `Today is ${Math.round(temp)}°C with ${desc} (Feels like ${Math.round(app_t)}°C). ` +
+                `Rain probability is ${Math.round(rain_p)}% (${rainInfo.nextRainWindow}). ` +
+                `Air Quality is AQI ${Math.round(aqi)}, and UV index is ${uv.toFixed(1)}. ` +
+                `Atmos Score is ${sc.score}/100 (${sc.verdict}). ${sc.summary}`;
+        }
+
+        return {
+            question,
+            city: targetCity,
+            answer,
+            tool_called: 'briefing_generator.executive_brief',
+            confidence: 'High',
+            verified_metrics: { location: targetCity, temperature: `${Math.round(temp)}°C`, atmos_score: `${sc.score}/100` }
+        };
+    }
+
+    // 7. Match Date Horizon in Target Forecast (Today, Tomorrow, Specific Dates, Past Dates)
     const dateResolution = resolveDateQuery(question, targetDaily);
 
     if (dateResolution) {
         if (dateResolution.isPast) {
-            // User asked about a date in the past
             const todayCode = targetDaily?.weather_code ? targetDaily.weather_code[0] : 0;
             const todayDesc = getWeatherDescription(todayCode);
             const tomorrowCode = targetDaily?.weather_code ? targetDaily.weather_code[1] : 0;
@@ -86,13 +189,7 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
                 answer: `${dateResolution.label} has already passed. For today in ${targetCity}, current conditions are ${Math.round(temp)}°C with ${todayDesc} and ${Math.round(rain_p)}% rain risk. Tomorrow (${targetDaily?.time?.[1] || 'Next Day'}), expect ${tomorrowDesc} with ${Math.round(tomorrowRain)}% rain probability.`,
                 tool_called: 'daily_forecast.past_date_detector',
                 confidence: 'High',
-                verified_metrics: {
-                    location: targetCity,
-                    requested_date: dateResolution.label,
-                    current_temp: `${Math.round(temp)}°C`,
-                    today_rain_probability: `${Math.round(rain_p)}%`
-                },
-                reasons: [`Identified that ${dateResolution.label} is in the past; provided current & upcoming forecast for ${targetCity}`]
+                verified_metrics: { location: targetCity, requested_date: dateResolution.label }
             };
         }
 
@@ -103,20 +200,17 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
             const desc = getWeatherDescription(code);
             const maxT = targetDaily.temperature_2m_max ? targetDaily.temperature_2m_max[idx] : temp;
             const minT = targetDaily.temperature_2m_min ? targetDaily.temperature_2m_min[idx] : temp - 4;
-            const rainProb = targetDaily.precipitation_probability_max ? targetDaily.precipitation_probability_max[idx] : (targetDaily.rain_sum ? (targetDaily.rain_sum[idx] > 0 ? 80 : 10) : 0);
-            const rainSum = targetDaily.rain_sum ? targetDaily.rain_sum[idx] : 0;
+            const rainProb = targetDaily.precipitation_probability_max ? targetDaily.precipitation_probability_max[idx] : 0;
 
             let answer = '';
-            if (q.includes('rain') || q.includes('umbrella') || q.includes('shower') || q.includes('precipitation')) {
-                if (rainProb >= 50 || rainSum > 1.0) {
-                    answer = `Yes, rain is expected in ${targetCity} on ${dateResolution.label} (${matchedDate}) with ${desc}. The rain probability is ${Math.round(rainProb)}% (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C). Carrying an umbrella is advised.`;
-                } else if (rainProb >= 25) {
-                    answer = `There is a moderate ${Math.round(rainProb)}% chance of light rain or showers in ${targetCity} on ${dateResolution.label} (${matchedDate}) with ${desc} (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C).`;
+            if (q.includes('rain') || q.includes('umbrella') || q.includes('shower')) {
+                if (rainProb >= 50) {
+                    answer = `Yes, rain is expected in ${targetCity} on ${dateResolution.label} (${matchedDate}) with ${desc}. Rain probability is ${Math.round(rainProb)}% (High: ${Math.round(maxT)}°C, Low: ${Math.round(minT)}°C). Carrying an umbrella is advised.`;
                 } else {
                     answer = `No significant rain is expected in ${targetCity} on ${dateResolution.label} (${matchedDate}). Conditions look dry with ${desc}, a rain probability of only ${Math.round(rainProb)}%, and highs reaching ${Math.round(maxT)}°C.`;
                 }
             } else {
-                answer = `Weather forecast for ${targetCity} on ${dateResolution.label} (${matchedDate}): Expect ${desc} with a maximum temperature of ${Math.round(maxT)}°C and a minimum of ${Math.round(minT)}°C. Rain probability is ${Math.round(rainProb)}%.`;
+                answer = `Weather forecast for ${targetCity} on ${dateResolution.label} (${matchedDate}): Expect ${desc} with a high of ${Math.round(maxT)}°C and low of ${Math.round(minT)}°C. Rain probability is ${Math.round(rainProb)}%.`;
             }
 
             return {
@@ -125,123 +219,57 @@ export async function askAtmosAI(question, currentCityName, currentData, hourlyD
                 answer,
                 tool_called: 'daily_forecast.date_matched_search',
                 confidence: 'High',
-                verified_metrics: {
-                    location: targetCity,
-                    date: matchedDate,
-                    condition: desc,
-                    max_temp: `${Math.round(maxT)}°C`,
-                    min_temp: `${Math.round(minT)}°C`,
-                    rain_probability: `${Math.round(rainProb)}%`
-                },
-                reasons: [`Live forecast queried for ${targetCity} on ${matchedDate}`]
+                verified_metrics: { location: targetCity, date: matchedDate, condition: desc }
             };
         }
     }
 
-    // 4. Check for "Tonight" / "Later Today"
-    const isTonight = q.includes('tonight') || q.includes('evening') || q.includes('later') || q.includes('afternoon') || q.includes('night');
-    if (isTonight && targetHourly.length > 0) {
-        const laterHours = targetHourly.slice(2, 10);
-        const maxRainLater = Math.max(...laterHours.map(h => h.precipitation_prob || 0), rain_p);
-        const avgTempLater = laterHours.reduce((acc, h) => acc + (h.temperature || temp), 0) / Math.max(laterHours.length, 1);
+    // 8. Activities: Running, Cycling, Travel, Sports
+    if (q.includes('run') || q.includes('cycling') || q.includes('sports') || q.includes('travel') || q.includes('walk') || q.includes('outdoor')) {
+        let actKey = 'running';
+        if (q.includes('cycl')) actKey = 'cycling';
+        else if (q.includes('sport') || q.includes('cricket') || q.includes('football')) actKey = 'sports';
+        else if (q.includes('travel')) actKey = 'travel';
+        else if (q.includes('walk')) actKey = 'walking';
 
-        let answer = '';
-        if (q.includes('rain') || q.includes('umbrella')) {
-            if (maxRainLater >= 50) {
-                answer = `Rain chances increase up to ${Math.round(maxRainLater)}% later today in ${targetCity}. Having an umbrella with you is advised.`;
-            } else {
-                answer = `Skies look predominantly dry later today in ${targetCity}, with rain probability staying under ${Math.round(maxRainLater)}%.`;
-            }
-        } else {
-            answer = `Later today in ${targetCity}, temperatures will hover around ${Math.round(avgTempLater)}°C with rain risk at ${Math.round(maxRainLater)}%.`;
-        }
-
+        const act = evaluateSingleActivity(targetHourly, targetCurrent, actKey);
         return {
             question,
             city: targetCity,
-            answer,
-            tool_called: 'hourly_forecast.tonight_scan',
+            answer: `${act.icon} **${act.name} in ${targetCity}**:\n• **Best Window**: ${act.bestTime}\n• **Suitability**: ${act.suitability} (Risk: ${act.riskLevel})\n• **Recommendation**: ${act.recommendation}`,
+            tool_called: `activity_engine.${actKey}`,
             confidence: 'High',
-            verified_metrics: {
-                location: targetCity,
-                forecast_horizon: 'Tonight / Later Today',
-                expected_temp: `${Math.round(avgTempLater)}°C`,
-                max_rain_risk: `${Math.round(maxRainLater)}%`
-            },
-            reasons: [`Analyzed next 8 hours for ${targetCity}`]
+            verified_metrics: { location: targetCity, best_window: act.bestTime }
         };
     }
 
-    // 5. Current Rain & Umbrella
-    if (q.includes('rain') || q.includes('umbrella') || q.includes('shower')) {
-        let answer = '';
-        if (rain_p >= 50) {
-            answer = `Yes, carry an umbrella in ${targetCity}. Current rain probability is elevated at ${Math.round(rain_p)}% with temperatures around ${Math.round(temp)}°C.`;
-        } else if (rain_p >= 25) {
-            answer = `A light rain chance (${Math.round(rain_p)}%) is present in ${targetCity}. Keeping a compact umbrella handy is recommended.`;
-        } else {
-            answer = `No umbrella needed currently in ${targetCity}. Rain probability is only ${Math.round(rain_p)}% with dry skies and temperature at ${Math.round(temp)}°C.`;
-        }
+    // 9. Current Rain / Umbrella
+    if (q.includes('rain') || q.includes('umbrella')) {
+        const rainInfo = analyzeRainIntelligence(targetHourly, targetCurrent);
         return {
             question,
             city: targetCity,
-            answer,
-            tool_called: 'current_telemetry.rain_evaluator',
+            answer: `🌧️ **Rain Outlook for ${targetCity}**:\n• **Current Probability**: ${rainInfo.currentProbability}%\n• **Next Rain**: ${rainInfo.nextRainWindow}\n• **Peak Risk**: ${rainInfo.peakProbability}%\n• **Decision**: ${rainInfo.recommendation}`,
+            tool_called: 'rain_intelligence.evaluator',
             confidence: 'High',
-            verified_metrics: { location: targetCity, temperature: `${Math.round(temp)}°C`, rain_probability: `${Math.round(rain_p)}%` },
-            reasons: [`Verified real-time conditions for ${targetCity}`]
+            verified_metrics: { location: targetCity, rain_probability: `${rainInfo.currentProbability}%` }
         };
     }
 
-    // 6. Running / Workout
-    if (q.includes('run') || q.includes('jog') || q.includes('workout') || q.includes('exercise')) {
-        const res = scoreHourlyActivity(targetHourly, 'running');
-        const best = res.bestWindow;
-        return {
-            question,
-            city: targetCity,
-            answer: `The best time to run in ${targetCity} is around ${best ? best.time : 'the morning'} (${best ? best.score : 88}/100). Temperatures are comfortable and rain risk is low.`,
-            tool_called: 'activity_engine.running',
-            confidence: 'High',
-            verified_metrics: { location: targetCity, temperature: `${Math.round(temp)}°C` },
-            reasons: [`Activity suitability scored for ${targetCity}`]
-        };
-    }
-
-    // 7. General Weather Overview
-    const sc = calculateWeatherScore({
-        temperature: temp,
-        apparent_temp: app_t,
-        uv_index: uv,
-        aqi: aqi,
-        wind_speed: wind,
-        precipitation_prob: rain_p
-    });
-
+    // 10. General Overview
+    const sc = calculateWeatherScore(targetCurrent);
     return {
         question,
         city: targetCity,
-        answer: `Currently in ${targetCity}, conditions are ${Math.round(temp)}°C with a Weather Score of ${sc.score}/100 (${sc.verdict}). ${sc.reasons[0]}.`,
+        answer: `Currently in ${targetCity}, conditions are ${Math.round(temp)}°C (${getWeatherDescription(targetCurrent?.weather_code || 0)}) with a Weather Score of ${sc.score}/100 (${sc.verdict}). ${sc.summary}`,
         tool_called: 'weather_score.universal_profile',
         confidence: 'High',
-        verified_metrics: {
-            location: targetCity,
-            temperature: `${Math.round(temp)}°C`,
-            feels_like: `${Math.round(app_t)}°C`,
-            rain_probability: `${Math.round(rain_p)}%`,
-            wind: `${Math.round(wind)} km/h`
-        },
-        reasons: [`Live telemetry queried for ${targetCity}`]
+        verified_metrics: { location: targetCity, temperature: `${Math.round(temp)}°C`, feels_like: `${Math.round(app_t)}°C` }
     };
 }
 
-/**
- * Extracts candidate location name from natural query (city, town, district, state).
- */
 export function extractLocationFromQuery(query, fallbackCity) {
     const q = query.trim();
-
-    // Pattern 1: Prepositional match "in Delhi", "at Odisha", "for Pune", "near Alandi", "in Mumbai on 16 august"
     const prepMatch = q.match(/(?:in|at|for|of|near)\s+([a-zA-Z\s]+?)(?:\?|\s+on\s+|\s+at\s+|\s+tomorrow|\s+today|\s+this|\s+next|\s*$)/i);
     if (prepMatch && prepMatch[1]) {
         const candidate = prepMatch[1].trim();
@@ -256,14 +284,12 @@ export function extractLocationFromQuery(query, fallbackCity) {
         }
     }
 
-    // Pattern 2: Direct word scan for city name tokens
     const words = q.replace(/[?,.!]/g, '').split(/\s+/);
     const stopWords = [
         'will', 'it', 'rain', 'is', 'there', 'any', 'weather', 'forecast', 'temperature', 'temp',
         'today', 'tomorrow', 'tonight', 'on', 'at', 'in', 'for', 'the', 'what', 'how', 'should',
         'i', 'wear', 'run', 'best', 'time', 'to', 'can', 'go', 'umbrella', 'jacket', 'good', 'bad',
-        'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
-        'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+        'college', 'commute', 'carry', 'travel', 'cycling', 'why', 'feels', 'hotter', 'colder', 'humidity'
     ];
 
     for (const w of words) {
@@ -275,9 +301,6 @@ export function extractLocationFromQuery(query, fallbackCity) {
     return null;
 }
 
-/**
- * Resolves natural date queries with past/future detection and 7-day daily forecast matching.
- */
 function resolveDateQuery(query, dailyData) {
     const q = query.toLowerCase();
 
@@ -295,7 +318,6 @@ function resolveDateQuery(query, dailyData) {
     const shortMonths = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
-    // 1. Check weekday
     if (dailyData && dailyData.time) {
         for (const d of days) {
             if (q.includes(d)) {
@@ -309,7 +331,6 @@ function resolveDateQuery(query, dailyData) {
         }
     }
 
-    // 2. Extract day & month pattern from query (e.g. "16 august", "20 august", "aug 21", "22nd august")
     let targetDay = null;
     let targetMonth = null;
 
@@ -330,19 +351,16 @@ function resolveDateQuery(query, dailyData) {
         }
     }
 
-    // 3. Match against daily forecast timestamps
     if (dailyData && dailyData.time && dailyData.time.length > 0) {
         const todayIso = dailyData.time[0];
         const todayObj = new Date(todayIso);
         const todayDay = todayObj.getDate();
         const todayMonth = todayObj.getMonth();
 
-        // Check if query matched an explicit day/month
         if (targetDay !== null && targetMonth !== null) {
             const queryMonthName = months[targetMonth];
             const dateLabel = `${targetDay} ${queryMonthName.charAt(0).toUpperCase() + queryMonthName.slice(1)}`;
 
-            // Check if it matches any day in forecast array
             for (let i = 0; i < dailyData.time.length; i++) {
                 const fObj = new Date(dailyData.time[i]);
                 if (fObj.getDate() === targetDay && fObj.getMonth() === targetMonth) {
@@ -350,32 +368,11 @@ function resolveDateQuery(query, dailyData) {
                 }
             }
 
-            // If not in forecast, check if it is in the past
             if (targetMonth < todayMonth || (targetMonth === todayMonth && targetDay < todayDay)) {
                 return { matchedIndex: null, label: dateLabel, isPast: true };
             }
 
-            // If future beyond 7 days
             return { matchedIndex: dailyData.time.length - 1, label: dateLabel, isPast: false };
-        }
-
-        // Check direct ISO or day string search
-        for (let i = 0; i < dailyData.time.length; i++) {
-            const iso = dailyData.time[i];
-            const fObj = new Date(iso);
-            const dNum = fObj.getDate();
-            const mName = months[fObj.getMonth()];
-            const sName = shortMonths[fObj.getMonth()];
-
-            if (
-                q.includes(`${dNum} ${mName}`) ||
-                q.includes(`${mName} ${dNum}`) ||
-                q.includes(`${dNum}th ${mName}`) ||
-                q.includes(`${dNum} ${sName}`) ||
-                q.includes(iso)
-            ) {
-                return { matchedIndex: i, label: `${dNum} ${mName.charAt(0).toUpperCase() + mName.slice(1)}`, isPast: false };
-            }
         }
     }
 

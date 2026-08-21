@@ -1,19 +1,20 @@
 /**
- * Atmos Weather — City Comparison Module
- * Side-by-side comparison between the current city and a second city
+ * Atmos Weather — Multi-Location Comparison System
+ * Enables side-by-side comparison across 2–4 cities comparing Atmos Score, Temp, Rain, AQI, and UV.
  */
 
 import { fetchWeather, fetchAQI, searchCities } from './api.js';
-import { formatTemp, getAQIInfo, getWeatherDescription, getWeatherIcon } from './utils.js';
+import { formatTemp, getAQIInfo, getWeatherDescription, getWeatherSvgIcon } from './utils.js';
+import { calculateWeatherScore } from './intelligence/weatherScore.js';
 import { getUnit } from './units.js';
 
-let city1Data = null;
-let city2Data = null;
+let comparedCities = []; // Array of { city, weather, aqi, score }
 
 export function initCompare() {
     const compareBtn = document.getElementById('compare-btn');
     const compareSection = document.getElementById('compare-section');
-    
+    const closeBtn = document.getElementById('compare-close-btn');
+
     if (compareBtn && compareSection) {
         compareBtn.addEventListener('click', () => {
             const isHidden = compareSection.classList.contains('hidden');
@@ -24,24 +25,33 @@ export function initCompare() {
             }
         });
     }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hideCompare);
+    }
 }
 
-export function showCompare() {
+export async function showCompare() {
     const section = document.getElementById('compare-section');
     if (!section) return;
-    
+
     section.classList.remove('hidden');
     section.scrollIntoView({ behavior: 'smooth' });
-    
-    // Set current active city as city 1
-    if (window.atmosState && window.atmosState.weatherData && window.atmosState.currentCity) {
-        city1Data = {
+
+    // Initialize with active city + 1 default Indian metro if empty
+    if (comparedCities.length === 0 && window.atmosState?.weatherData && window.atmosState?.currentCity) {
+        comparedCities.push({
             city: window.atmosState.currentCity,
             weather: window.atmosState.weatherData,
-            aqi: window.atmosState.aqiData
-        };
+            aqi: window.atmosState.aqiData,
+            score: calculateWeatherScore(window.atmosState.weatherData.current)
+        });
+
+        // Add a second comparison city (Mumbai or Delhi)
+        const secondCityName = window.atmosState.currentCity.name.toLowerCase().includes('mumbai') ? 'Delhi' : 'Mumbai';
+        await addCityToCompare(secondCityName);
     }
-    
+
     renderCompare();
 }
 
@@ -50,128 +60,114 @@ export function hideCompare() {
     if (section) section.classList.add('hidden');
 }
 
-function renderCompare() {
-    const container = document.getElementById('compare-container');
-    if (!container) return;
-    
-    const unit = getUnit();
-    
-    container.innerHTML = `
-        <div class="compare-card" id="compare-card-1">
-            <h3 class="compare-card-title">${city1Data ? city1Data.city.name : 'Current Location'}</h3>
-            ${city1Data ? renderCityStats(city1Data, unit) : '<p class="text-muted">No location loaded</p>'}
-        </div>
-        
-        <div class="compare-card" id="compare-card-2">
-            <div class="compare-search-box">
-                <input type="text" id="compare-search-input" class="search-input" placeholder="Search city to compare..." autocomplete="off">
-                <div id="compare-search-results" class="search-dropdown hidden"></div>
-            </div>
-            <div id="compare-card-2-content">
-                ${city2Data ? renderCityStats(city2Data, unit) : '<p class="text-muted" style="margin-top: 1rem;">Search and select a second city to compare.</p>'}
-            </div>
-        </div>
-    `;
-    
-    setupCompareSearch();
-    highlightDifferences();
+export async function addCityToCompare(cityName) {
+    if (comparedCities.length >= 4) return;
+
+    try {
+        const searchRes = await searchCities(cityName, 1);
+        if (searchRes?.results?.length > 0) {
+            const loc = searchRes.results[0];
+            const [w, a] = await Promise.all([
+                fetchWeather(loc.latitude, loc.longitude),
+                fetchAQI(loc.latitude, loc.longitude)
+            ]);
+
+            if (w && w.current) {
+                comparedCities.push({
+                    city: { name: loc.name, country: loc.country || 'India', lat: loc.latitude, lon: loc.longitude },
+                    weather: w,
+                    aqi: a,
+                    score: calculateWeatherScore(w.current)
+                });
+                renderCompare();
+            }
+        }
+    } catch (e) {
+        console.warn('Error adding compare city:', e);
+    }
 }
 
-function renderCityStats(data, unit) {
-    const cur = data.weather?.current;
-    if (!cur) return '<p class="text-muted">Weather data unavailable</p>';
-    
-    const iconName = getWeatherIcon(cur.weather_code, cur.is_day === 1);
-    const aqiVal = data.aqi?.current?.us_aqi;
-    const aqiInfo = getAQIInfo(aqiVal);
-    
-    return `
-        <div class="compare-stat-hero">
-            <img src="https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg" alt="Weather" width="48" height="48" />
-            <div class="compare-temp">${formatTemp(cur.temperature_2m, unit)}</div>
-        </div>
-        <p class="compare-condition">${getWeatherDescription(cur.weather_code)}</p>
-        
-        <div class="compare-details-list">
-            <div class="compare-row">
-                <span>Feels like:</span>
-                <strong>${formatTemp(cur.apparent_temperature, unit)}</strong>
+export function removeComparedCity(index) {
+    if (comparedCities.length <= 1) return;
+    comparedCities.splice(index, 1);
+    renderCompare();
+}
+
+function renderCompare() {
+    const container = document.getElementById('compare-grid-cards');
+    if (!container) return;
+
+    const unit = getUnit();
+
+    container.innerHTML = comparedCities.map((item, idx) => {
+        const cur = item.weather?.current;
+        const temp = cur?.temperature_2m ?? 25;
+        const feels = cur?.apparent_temperature ?? temp;
+        const rainP = Math.round(cur?.precipitation_probability ?? 0);
+        const aqiVal = item.aqi?.current?.us_aqi ?? 35;
+        const uvVal = item.weather?.daily?.uv_index_max?.[0] ?? 4.0;
+        const score = item.score?.score ?? 80;
+        const isDay = cur?.is_day === 1;
+
+        return `
+            <div class="compare-city-pod">
+                <div class="compare-pod-header">
+                    <div>
+                        <h4 class="compare-city-title">${item.city.name}</h4>
+                        <div class="compare-city-sub">${item.city.country}</div>
+                    </div>
+                    ${comparedCities.length > 1 ? `<button class="compare-remove-btn" onclick="window.atmosRemoveCompare(${idx})">&times;</button>` : ''}
+                </div>
+
+                <div class="compare-score-badge" style="background: ${score >= 75 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)'}; color: ${score >= 75 ? '#10b981' : '#f59e0b'};">
+                    <span>Atmos Score: <strong>${score}/100</strong> (${item.score?.verdict || 'Good'})</span>
+                </div>
+
+                <div class="compare-hero-flex">
+                    <div style="width:48px; height:48px;">
+                        ${getWeatherSvgIcon(cur?.weather_code ?? 0, isDay, 48)}
+                    </div>
+                    <div class="compare-temp-num">${formatTemp(temp, unit)}</div>
+                </div>
+                <div class="compare-cond-text">${getWeatherDescription(cur?.weather_code ?? 0)}</div>
+
+                <div class="compare-metric-rows">
+                    <div class="comp-row"><span>Feels Like:</span> <strong>${formatTemp(feels, unit)}</strong></div>
+                    <div class="comp-row"><span>Rain Risk:</span> <strong>${rainP}%</strong></div>
+                    <div class="comp-row"><span>Air Quality:</span> <strong style="color:${aqiVal > 100 ? '#ef4444' : '#10b981'};">AQI ${Math.round(aqiVal)}</strong></div>
+                    <div class="comp-row"><span>UV Index:</span> <strong>${uvVal.toFixed(1)}</strong></div>
+                    <div class="comp-row"><span>Wind:</span> <strong>${Math.round(cur?.wind_speed_10m ?? 10)} km/h</strong></div>
+                </div>
             </div>
-            <div class="compare-row">
-                <span>Humidity:</span>
-                <strong>${Math.round(cur.relative_humidity_2m || 0)}%</strong>
-            </div>
-            <div class="compare-row">
-                <span>Wind:</span>
-                <strong>${Math.round(cur.wind_speed_10m || 0)} km/h</strong>
-            </div>
-            <div class="compare-row">
-                <span>Pressure:</span>
-                <strong>${Math.round(cur.pressure_msl || cur.surface_pressure || 0)} hPa</strong>
-            </div>
-            <div class="compare-row">
-                <span>Air Quality:</span>
-                <strong style="color: ${aqiInfo.color}">${aqiVal !== undefined ? `${Math.round(aqiVal)} (${aqiInfo.label})` : 'N/A'}</strong>
-            </div>
-        </div>
-    `;
+        `;
+    }).join('');
+
+    setupCompareSearch();
 }
 
 function setupCompareSearch() {
-    const input = document.getElementById('compare-search-input');
-    const dropdown = document.getElementById('compare-search-results');
-    if (!input || !dropdown) return;
-    
-    let timer = null;
-    input.addEventListener('input', (e) => {
-        clearTimeout(timer);
-        const query = e.target.value.trim();
-        if (query.length < 2) {
-            dropdown.classList.add('hidden');
-            return;
-        }
-        
-        timer = setTimeout(async () => {
-            const res = await searchCities(query);
-            if (res && res.results && res.results.length) {
-                dropdown.innerHTML = res.results.map(c => `
-                    <div class="search-item" data-lat="${c.latitude}" data-lon="${c.longitude}" data-name="${c.name}" data-country="${c.country || ''}">
-                        <div class="city-name">${c.name}, ${c.country || ''}</div>
-                        <div class="city-sub">${c.admin1 || ''}</div>
-                    </div>
-                `).join('');
-                dropdown.classList.remove('hidden');
-                
-                dropdown.querySelectorAll('.search-item').forEach(item => {
-                    item.addEventListener('click', async () => {
-                        const lat = parseFloat(item.dataset.lat);
-                        const lon = parseFloat(item.dataset.lon);
-                        const name = item.dataset.name;
-                        const country = item.dataset.country;
-                        dropdown.classList.add('hidden');
-                        input.value = `${name}, ${country}`;
-                        
-                        const [wRes, aRes] = await Promise.allSettled([
-                            fetchWeather(lat, lon),
-                            fetchAQI(lat, lon)
-                        ]);
-                        
-                        city2Data = {
-                            city: { name, country, lat, lon },
-                            weather: wRes.status === 'fulfilled' ? wRes.value : null,
-                            aqi: aRes.status === 'fulfilled' ? aRes.value : null
-                        };
-                        
-                        renderCompare();
-                    });
-                });
-            } else {
-                dropdown.classList.add('hidden');
+    const input = document.getElementById('compare-add-input');
+    const addBtn = document.getElementById('compare-add-btn');
+
+    if (input && addBtn) {
+        addBtn.onclick = () => {
+            const val = input.value.trim();
+            if (val) {
+                addCityToCompare(val);
+                input.value = '';
             }
-        }, 300);
-    });
+        };
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                const val = input.value.trim();
+                if (val) {
+                    addCityToCompare(val);
+                    input.value = '';
+                }
+            }
+        };
+    }
 }
 
-function highlightDifferences() {
-    // Visual indicators can be dynamically styled
-}
+window.atmosRemoveCompare = removeComparedCity;
+window.atmosAddCompare = addCityToCompare;
