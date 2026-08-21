@@ -32,7 +32,9 @@ import { analyzeWeatherTrends } from './intelligence/weatherTrends.js';
 import { explainMeteorologicalMetric } from './intelligence/whyExplainer.js';
 import { askAtmosAI } from './intelligence/atmosAI.js';
 import { evaluateDecisionCardsClient } from './intelligence/decisionEngine.js';
+import { evaluateCommuteClient } from './intelligence/commuteTravel.js';
 import { openShareModal } from './shareCard.js';
+import { generatePrintableReport } from './reportGenerator.js';
 
 /* ─────────────────── State ─────────────────── */
 
@@ -180,6 +182,116 @@ function setupUIEventListeners() {
     if (shareBtn) {
         shareBtn.onclick = () => openShareModal(state);
     }
+
+    // Weather Report Generator Button (Feature 20)
+    const reportBtn = document.getElementById('generate-report-btn');
+    if (reportBtn) {
+        reportBtn.onclick = () => generatePrintableReport(state);
+    }
+
+    // Student Mode Commute Evaluator (Feature 8)
+    const studentEvalBtn = document.getElementById('student-eval-btn');
+    if (studentEvalBtn) {
+        studentEvalBtn.onclick = () => {
+            const depHour = parseInt(document.getElementById('student-dep-time')?.value || '8');
+            const retHour = parseInt(document.getElementById('student-ret-time')?.value || '17');
+            const res = evaluateCommuteClient(state.hourlyNormalized, depHour, retHour);
+            const container = document.getElementById('student-commute-results');
+            if (container) {
+                container.classList.remove('hidden');
+                container.innerHTML = `
+                    <div style="background: var(--color-surface-sunken); border: 1px solid var(--color-border); border-radius: var(--radius-bubble-sm); padding: 1rem; margin-top: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong>🌅 Morning (${depHour}:00):</strong>
+                            <span class="planner-badge ${res.morning.verdict.toLowerCase()}">${res.morning.verdict} (${res.morning.score}/100)</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--color-ink-secondary); margin-bottom: 0.75rem;">
+                            • Temp: ${res.morning.temp}°C | Rain Risk: ${res.morning.rain}% | ${res.morning.hazards[0]}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong>🌇 Return (${retHour > 12 ? retHour - 12 : retHour}:00 PM):</strong>
+                            <span class="planner-badge ${res.evening.verdict.toLowerCase()}">${res.evening.verdict} (${res.evening.score}/100)</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--color-ink-secondary);">
+                            • Temp: ${res.evening.temp}°C | Rain Risk: ${res.evening.rain}% | ${res.evening.hazards[0]}
+                        </div>
+                    </div>
+                `;
+            }
+        };
+    }
+
+    // Travel Weather Evaluator (Feature 9)
+    const travelEvalBtn = document.getElementById('travel-eval-btn');
+    if (travelEvalBtn) {
+        travelEvalBtn.onclick = async () => {
+            const fromCity = document.getElementById('travel-from-city')?.value.trim() || state.currentCity?.name || 'Pune';
+            const toCity = document.getElementById('travel-to-city')?.value.trim();
+            if (!toCity) {
+                showToast('Please enter a destination city', 'info');
+                return;
+            }
+
+            const container = document.getElementById('travel-eval-results');
+            if (container) {
+                container.classList.remove('hidden');
+                container.innerHTML = `<div style="text-align:center; padding: 1rem; color: var(--color-ink-tertiary);">Analyzing travel telemetry between ${fromCity} and ${toCity}...</div>`;
+                
+                try {
+                    const searchRes = await searchCities(toCity, 1);
+                    if (searchRes?.results?.length > 0) {
+                        const destLoc = searchRes.results[0];
+                        const destWeather = await fetchWeather(destLoc.latitude, destLoc.longitude);
+                        const destTemp = Math.round(destWeather?.current?.temperature_2m ?? 24);
+                        const destRain = Math.round(destWeather?.current?.precipitation_probability ?? 0);
+                        const destDesc = destWeather?.current ? getWeatherDescription(destWeather.current.weather_code) : 'Clear';
+                        
+                        const origTemp = Math.round(state.weatherData?.current?.temperature_2m ?? 26);
+                        const origRain = Math.round(state.weatherData?.current?.precipitation_probability ?? 0);
+
+                        const travelRisk = destRain > 50 || origRain > 50 ? 'HIGH' : destRain > 25 || origRain > 25 ? 'MODERATE' : 'LOW';
+                        const riskColor = travelRisk === 'HIGH' ? '#ef4444' : travelRisk === 'MODERATE' ? '#f59e0b' : '#10b981';
+
+                        container.innerHTML = `
+                            <div style="background: var(--color-surface-sunken); border: 1px solid var(--color-border); border-radius: var(--radius-bubble-sm); padding: 1rem; margin-top: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <strong style="font-size: 0.95rem;">${fromCity} ➔ ${destLoc.name}</strong>
+                                    <span class="station-pill" style="background: ${riskColor}; color: #fff;">Risk: ${travelRisk}</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.82rem;">
+                                    <div style="background: var(--color-surface); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--color-border);">
+                                        <strong>🛫 Origin (${fromCity}):</strong><br>
+                                        ${origTemp}°C | Rain: ${origRain}%
+                                    </div>
+                                    <div style="background: var(--color-surface); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--color-border);">
+                                        <strong>🛬 Destination (${destLoc.name}):</strong><br>
+                                        ${destTemp}°C (${destDesc}) | Rain: ${destRain}%
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--color-ink-tertiary); margin-top: 0.5rem; text-align: right;">
+                                    * Departure vs Destination comparison based on live Open-Meteo telemetry.
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    container.innerHTML = `<div style="color: #ef4444; padding: 0.5rem;">Could not locate destination city.</div>`;
+                }
+            }
+        };
+    }
+
+    // Connect mode chips to open specialized modals if clicked twice or requested
+    document.querySelectorAll('.mode-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const mode = chip.dataset.mode;
+            if (mode === 'student') {
+                document.getElementById('student-modal-overlay')?.classList.remove('hidden');
+            } else if (mode === 'travel') {
+                document.getElementById('travel-modal-overlay')?.classList.remove('hidden');
+            }
+        });
+    });
 
     // Sidebar Toggle
     document.getElementById('sidebar-toggle')?.addEventListener('click', toggleSidebar);

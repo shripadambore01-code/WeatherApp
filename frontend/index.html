@@ -85,6 +85,12 @@
                     <span class="unit-chip" id="opt-f">°F</span>
                 </div>
 
+                <button class="tactile-btn-icon" id="generate-report-btn" aria-label="Generate Weather Report" title="Generate Weather Report">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </button>
+
                 <button class="tactile-btn-icon" id="share-card-btn" aria-label="Share Weather Card" title="Share Weather Card">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                         <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
@@ -520,6 +526,70 @@
                 </div>
                 <div id="why-modal-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--color-ink); margin: 1rem 0;"></div>
                 <div id="why-modal-action" class="decision-alert-pill" style="margin-top: 0.75rem;"></div>
+            </div>
+        </div>
+
+        <!-- Student Mode Commute Planner Modal (Feature 8) -->
+        <div class="modal-overlay hidden" id="student-modal-overlay">
+            <div class="modal-dialog bubble-card" style="max-width: 520px;">
+                <div class="card-header-bar">
+                    <div class="card-heading" style="font-size: 1.1rem; color: var(--accent-amber-dark);">
+                        <span>🎓</span>
+                        <span>Student College Commute Planner</span>
+                    </div>
+                    <button class="tactile-btn-icon" onclick="document.getElementById('student-modal-overlay').classList.add('hidden')">&times;</button>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-ink-secondary); margin-bottom: 1rem;">
+                    Configure your college schedule. Atmos will analyze departure, midday, and return conditions.
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--color-ink-tertiary);">DEPARTURE TIME</label>
+                        <select id="student-dep-time" class="search-input-field" style="padding: 0.5rem; margin-top: 4px;">
+                            <option value="7">7:00 AM</option>
+                            <option value="8" selected>8:00 AM</option>
+                            <option value="9">9:00 AM</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--color-ink-tertiary);">RETURN TIME</label>
+                        <select id="student-ret-time" class="search-input-field" style="padding: 0.5rem; margin-top: 4px;">
+                            <option value="16">4:00 PM</option>
+                            <option value="17" selected>5:00 PM</option>
+                            <option value="18">6:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="tactile-btn" id="student-eval-btn" style="width: 100%; background: var(--color-ink); color: #fff; margin-bottom: 1rem;">Analyze Commute Weather</button>
+                <div id="student-commute-results" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- Travel Weather Departure vs Destination Modal (Feature 9) -->
+        <div class="modal-overlay hidden" id="travel-modal-overlay">
+            <div class="modal-dialog bubble-card" style="max-width: 580px;">
+                <div class="card-header-bar">
+                    <div class="card-heading" style="font-size: 1.1rem; color: var(--accent-sky-dark);">
+                        <span>🚗</span>
+                        <span>Travel Weather & Destination Risk</span>
+                    </div>
+                    <button class="tactile-btn-icon" onclick="document.getElementById('travel-modal-overlay').classList.add('hidden')">&times;</button>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-ink-secondary); margin-bottom: 1rem;">
+                    Compare departure vs destination weather and evaluate road risk before your trip.
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--color-ink-tertiary);">FROM (ORIGIN)</label>
+                        <input type="text" id="travel-from-city" class="search-input-field" placeholder="e.g. Pune" style="padding: 0.5rem; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--color-ink-tertiary);">TO (DESTINATION)</label>
+                        <input type="text" id="travel-to-city" class="search-input-field" placeholder="e.g. Mumbai / Lonavala" style="padding: 0.5rem; margin-top: 4px;">
+                    </div>
+                </div>
+                <button class="tactile-btn" id="travel-eval-btn" style="width: 100%; background: var(--color-ink); color: #fff; margin-bottom: 1rem;">Evaluate Travel Risk</button>
+                <div id="travel-eval-results" class="hidden"></div>
             </div>
         </div>
 
